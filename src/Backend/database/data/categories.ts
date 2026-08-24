@@ -11,7 +11,7 @@ export const categories: Category[] = [
     name: 'New Arrivals',
     slug: 'new-arrivals',
     description: 'Discover the latest additions to our curated collection.',
-    image: '/images/categories/new-arrivals.jpg',
+    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
     productCount: 12,
   },
   {
@@ -19,7 +19,7 @@ export const categories: Category[] = [
     name: 'Clothing',
     slug: 'clothing',
     description: 'Premium essentials crafted for modern living.',
-    image: '/images/categories/clothing.jpg',
+    image: 'https://images.unsplash.com/photo-1434389678369-182cb139e210?w=800&q=80',
     productCount: 15,
   },
   {
@@ -27,7 +27,7 @@ export const categories: Category[] = [
     name: 'Shoes',
     slug: 'shoes',
     description: 'From everyday comfort to statement pieces.',
-    image: '/images/categories/shoes.jpg',
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80',
     productCount: 10,
   },
   {
@@ -35,7 +35,7 @@ export const categories: Category[] = [
     name: 'Bags',
     slug: 'bags',
     description: 'Carry your essentials in refined style.',
-    image: '/images/categories/bags.jpg',
+    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80',
     productCount: 8,
   },
   {
@@ -43,7 +43,7 @@ export const categories: Category[] = [
     name: 'Accessories',
     slug: 'accessories',
     description: 'The finishing touches that define your look.',
-    image: '/images/categories/accessories.jpg',
+    image: 'https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=800&q=80',
     productCount: 10,
   },
   {
@@ -51,7 +51,7 @@ export const categories: Category[] = [
     name: 'Lifestyle',
     slug: 'lifestyle',
     description: 'Elevated everyday objects for your space.',
-    image: '/images/categories/lifestyle.jpg',
+    image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&q=80',
     productCount: 7,
   },
 ];
