@@ -1,0 +1,247 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      String   @default("CUSTOMER") // "CUSTOMER" or "ADMIN"
+  avatar    String?
+  
+  addresses Address[]
+  orders    Order[]
+  cart      Cart?
+  reviews   Review[]
+  wishlist  WishlistItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fullName  String
+  phone     String
+  email     String
+  address   String
+  city      String
+  district  String?
+  ward      String?
+  note      String?
+  isDefault Boolean  @default(false)
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  brand           String
+  description     String
+  price           Float
+  compareAt       Float?
+  currency        String   @default("VND")
+  
+  rating          Float    @default(0)
+  reviewCount     Int      @default(0)
+  
+  thumbnail       String
+  images          String   // JSON stringified array of images
+  
+  imageUrl        String?
+  imageAlt        String?
+  imageSourceUrl  String?
+  
+  badge           String?  // "NEW", "SALE", "FEATURED"
+  featured        Boolean  @default(false)
+  
+  categorySlug    String
+  subcategorySlug String?
+  tags            String?  // JSON stringified array of tags
+  specs           String?  // JSON stringified specs object
+
+  variants        ProductVariant[]
+  colors          ProductColor[]
+  sizes           ProductSize[]
+  inventory       Inventory[]
+  inventoryLogs   InventoryLog[]
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+  reviews         Review[]
+  wishlistItems   WishlistItem[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProductColor {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  hex       String
+  swatch    String?
+}
+
+model ProductSize {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+}
+
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name       String
+  sku        String  @unique
+  price      Float?
+  attributes String  // JSON object of attributes (e.g. { "color": "Red", "size": "M" })
+  
+  inventory      Inventory?
+  inventoryLogs  InventoryLog[]
+  cartItems      CartItem[]
+}
+
+model Inventory {
+  id                String  @id @default(cuid())
+  productId         String
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId         String? @unique
+  variant           ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  stockQuantity     Int     @default(0)
+  soldQuantity      Int     @default(0)
+  reservedQuantity  Int     @default(0)
+  lowStockThreshold Int     @default(5)
+  
+  updatedAt         DateTime @updatedAt
+}
+
+model InventoryLog {
+  id                String  @id @default(cuid())
+  productId         String
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId         String?
+  variant           ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  
+  type              String   // "IMPORT", "SALE", "ADJUSTMENT", "RETURN"
+  quantityChange    Int
+  stockBefore       Int
+  stockAfter        Int
+  reason            String?
+  createdBy         String?  // Admin name or User ID who caused the change
+  
+  createdAt         DateTime @default(now())
+}
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity  Int
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  items          OrderItem[]
+  
+  subtotal       Float
+  shippingFee    Float
+  discount       Float
+  total          Float
+  
+  deliveryMethod String      @default("STANDARD") // "STANDARD", "EXPRESS"
+  paymentMethod  String      @default("COD")      // "COD", "MOCK_CARD"
+  paymentStatus  String      @default("PENDING")  // "PENDING", "PAID", "FAILED"
+  status         String      @default("PENDING")  // "PENDING", "CONFIRMED", "SHIPPING", "DELIVERED", "CANCELLED"
+  
+  shippingData   String      // JSON stringified Snapshot of ShippingAddress
+  
+  statusHistory  OrderStatusHistory[]
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model OrderStatusHistory {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  oldStatus String
+  newStatus String
+  changedBy String   // Admin name or ID
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  variantId      String?
+  
+  name           String
+  thumbnail      String
+  imageUrl       String?
+  imageAlt       String?
+  imageSourceUrl String?
+  variantName    String?
+  
+  quantity       Int
+  unitPrice      Float
+  total          Float
+}
+
+model WishlistItem {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int
+  title     String
+  content   String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,130 @@
+.productDetailContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xxl);
+  align-items: flex-start;
+}
+
+@media (min-width: 1024px) {
+  .productDetailContainer {
+    grid-template-columns: 55% 1fr; /* Gallery takes 55%, Info takes 1fr (approx 45%) */
+    gap: 48px;
+  }
+}
+
+.galleryColumn {
+  width: 100%;
+}
+
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .infoColumn {
+    position: sticky;
+    top: calc(var(--global-nav-height) + 32px); /* Sticky under the header */
+    max-height: calc(100vh - var(--global-nav-height) - 64px);
+    overflow-y: auto;
+    /* hide scrollbar for cleaner look */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 32px;
+  }
+  .infoColumn::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.brandLabel {
+  font-size: var(--text-caption-strong-size);
+  color: var(--color-ink-muted-48);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.productName {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: var(--color-ink);
+}
+
+@media (min-width: 1024px) {
+  .productName {
+    font-size: 34px;
+  }
+}
+
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stars {
+  display: flex;
+  color: #ffb400;
+}
+
+.emptyStars {
+  color: var(--color-hairline);
+}
+
+.reviewCount {
+  font-size: var(--text-caption-size);
+  color: var(--color-ink-muted-80);
+}
+
+.description {
+  font-size: var(--text-body-size);
+  line-height: 1.6;
+  color: var(--color-ink-muted-80);
+}
+
+.specsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.specRow {
+  display: flex;
+  gap: 16px;
+}
+
+.specKey {
+  width: 120px;
+  color: var(--color-ink-muted-48);
+  font-weight: 600;
+}
+
+.specValue {
+  color: var(--color-ink);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-divider-soft);
+  margin: 8px 0;
+}
+
+.additionalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 12px;
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption-size);
+}

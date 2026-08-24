@@ -1,0 +1,61 @@
+.galleryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.mainImageWrapper {
+  position: relative;
+  border-radius: var(--rounded-lg);
+  overflow: hidden;
+  background-color: var(--color-canvas-parchment);
+  width: 100%;
+  aspect-ratio: 3/4; /* Better for fashion photography */
+  max-height: 70vh; /* Prevent it from being taller than the screen */
+}
+
+@media (min-width: 1024px) {
+  .mainImageWrapper {
+    height: 600px;
+    max-height: none;
+    aspect-ratio: auto;
+  }
+}
+
+.badgeContainer {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+}
+
+.thumbnailsContainer {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.thumbnailsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.thumbnailBtn {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: var(--rounded-sm);
+  overflow: hidden;
+  background-color: var(--color-canvas-parchment);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.thumbnailBtnActive {
+  border: 2px solid var(--color-ink);
+}

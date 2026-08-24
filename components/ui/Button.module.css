@@ -1,0 +1,196 @@
+/* ─────────────────────────────────────────────
+   NORA — Button Component Styles
+   Design tokens from DESIGN.md
+   ───────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Primary (signature Apple pill CTA) ── */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-lh);
+  letter-spacing: var(--text-body-ls);
+  border-radius: var(--rounded-pill);
+  padding: 11px 22px;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}
+
+/* ── Secondary Pill (ghost pill CTA) ── */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  line-height: var(--text-body-lh);
+  letter-spacing: var(--text-body-ls);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--rounded-pill);
+  padding: 11px 22px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* ── Dark Utility ── */
+.btn-dark-utility {
+  background-color: var(--color-ink);
+  color: var(--color-on-dark);
+  font-size: var(--text-button-utility-size);
+  font-weight: var(--text-button-utility-weight);
+  line-height: var(--text-button-utility-lh);
+  letter-spacing: var(--text-button-utility-ls);
+  border-radius: var(--rounded-sm);
+  padding: 8px 15px;
+}
+
+/* ── Pearl Capsule ── */
+.btn-pearl {
+  background-color: var(--color-surface-pearl);
+  color: var(--color-ink-muted-80);
+  font-size: var(--text-caption-size);
+  font-weight: var(--text-caption-weight);
+  line-height: var(--text-caption-lh);
+  letter-spacing: var(--text-caption-ls);
+  border: 1px solid var(--color-divider-soft);
+  border-radius: var(--rounded-md);
+  padding: 8px 14px;
+}
+
+.btn-pearl:hover {
+  border-color: var(--color-hairline);
+}
+
+/* ── Store Hero (large primary CTA) ── */
+.btn-store-hero {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--text-button-large-size);
+  font-weight: var(--text-button-large-weight);
+  line-height: var(--text-button-large-lh);
+  letter-spacing: var(--text-button-large-ls);
+  border-radius: var(--rounded-pill);
+  padding: 14px 28px;
+}
+
+/* ── Icon Circular ── */
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--rounded-full);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-translucent {
+  background-color: var(--color-surface-chip-translucent);
+  color: var(--color-ink);
+}
+
+.btn-icon-outline {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+}
+
+.btn-icon-outline:hover {
+  background-color: var(--color-canvas-parchment);
+}
+
+/* ── Ghost (text-like button) ── */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  padding: 8px 12px;
+  border-radius: var(--rounded-sm);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-canvas-parchment);
+}
+
+/* ── Danger ── */
+.btn-danger {
+  background-color: var(--color-error);
+  color: var(--color-on-primary);
+  font-size: var(--text-body-size);
+  font-weight: var(--text-body-weight);
+  border-radius: var(--rounded-pill);
+  padding: 11px 22px;
+}
+
+/* ── Sizes ── */
+.btn-sm {
+  font-size: var(--text-caption-size);
+  padding: 6px 14px;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* ── Loading state ── */
+.btn-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-loading .btn-text {
+  visibility: hidden;
+}
+
+.btn-spinner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
