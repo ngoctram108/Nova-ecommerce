@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { products } from '../lib/data/products';
-import { slugify } from '../lib/utils';
+import { products } from '../src/Backend/database/data/products';
+import { slugify } from '../src/Shared/utils';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

@@ -1,4 +1,4 @@
-import { searchProductImage } from './lib/services/image-search';
+import { searchProductImage } from './src/Backend/services/image-search';
 
 async function test() {
   const result = await searchProductImage("Set Đồ Ngủ Lụa Pijama NORA Váy ngủ");
