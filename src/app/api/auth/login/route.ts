@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/Backend/database/prisma';
 import { createSession } from '@/Backend/auth/session';
 import { validateCredentials } from '@/Backend/database/data/users';
-import crypto from 'crypto';
 
 export async function POST(req: Request) {
   try {
@@ -32,9 +31,15 @@ export async function POST(req: Request) {
     }
 
     // Fallback to Prisma database
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email },
+      });
+    } catch (e) {
+      console.warn("Prisma failed on login", e);
+      return NextResponse.json({ error: 'Invalid credentials or database unavailable' }, { status: 401 });
+    }
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
