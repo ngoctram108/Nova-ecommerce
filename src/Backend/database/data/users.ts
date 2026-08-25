@@ -34,8 +34,12 @@ export const MOCK_CREDENTIALS = {
   },
   admin: {
     email: 'admin@nora.com',
-    password: 'admin123',
+    password: 'admin123456',
   },
+  seedCustomer: {
+    email: 'customer@nora.com',
+    password: '123456',
+  }
 };
 
 /* ── Helper functions ── */
@@ -63,6 +67,12 @@ export function validateCredentials(
     password === MOCK_CREDENTIALS.admin.password
   ) {
     return users.find((u) => u.id === 'u_admin') ?? null;
+  }
+  if (
+    email === MOCK_CREDENTIALS.seedCustomer.email &&
+    password === MOCK_CREDENTIALS.seedCustomer.password
+  ) {
+    return users.find((u) => u.id === 'u_001') ?? null; // Map to the demo customer
   }
   return null;
 }
