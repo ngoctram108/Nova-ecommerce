@@ -3,10 +3,11 @@ import { searchProductImage, validateAndExtractImage } from '../src/Backend/serv
 
 const prisma = new PrismaClient();
 
-async function checkUrl(url: string | null): Promise<'valid' | 'invalid' | 'missing' | 'broken'> {
+async function checkUrl(url: string | null): Promise<'valid' | 'invalid' | 'missing' | 'broken' | 'placeholder'> {
   if (!url) return 'missing';
   try {
     if (!url.startsWith('http')) return 'invalid';
+    if (url.includes('picsum.photos')) return 'placeholder';
     
     const res = await fetch(url, { 
       method: 'GET',

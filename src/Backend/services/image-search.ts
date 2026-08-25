@@ -57,6 +57,8 @@ export async function validateAndExtractImage(url: string): Promise<string | nul
   }
 }
 
+import { GOOGLE_IMG_SCRAP } from 'google-img-scrap';
+
 export async function searchProductImage(query: string): Promise<ImageSearchResult | null> {
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
 
@@ -92,7 +94,30 @@ export async function searchProductImage(query: string): Promise<ImageSearchResu
     }
   }
 
-  // Fallback 1: Wikipedia API
+  // Fallback 1: Google Image Scrap
+  try {
+    const res = await GOOGLE_IMG_SCRAP({
+      search: `${query} product isolated`,
+      limit: 5
+    });
+
+    if (res && res.result && res.result.length > 0) {
+      for (const img of res.result) {
+        const validUrl = await validateAndExtractImage(img.url);
+        if (validUrl) {
+          return {
+            imageUrl: validUrl,
+            imageAlt: query,
+            imageSourceUrl: img.url,
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch from Google Images:', error);
+  }
+
+  // Fallback 2: Wikipedia API
   try {
     const wikiResponse = await fetch(
       `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(
@@ -123,7 +148,7 @@ export async function searchProductImage(query: string): Promise<ImageSearchResu
     console.error('Failed to fetch from Wikipedia API:', error);
   }
 
-  // Fallback 2: Generate from picsum
+  // Fallback 3: Generate from picsum (only if completely failed)
   try {
     const slug = query.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const fallbackUrl = `https://picsum.photos/seed/${slug}/800/800`;

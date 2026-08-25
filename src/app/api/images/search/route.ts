@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCachedImage, setCachedImage, CachedImage } from '@/Backend/services/image-cache';
 import { searchProductImage, validateAndExtractImage } from '@/Backend/services/image-search';
 import { prisma } from '@/Backend/database/prisma';
@@ -49,6 +50,9 @@ export async function POST(request: Request) {
         imageSourceUrl: newImage.imageSourceUrl,
       }
     });
+
+    revalidatePath('/products');
+    revalidatePath(`/product/${productId}`);
 
     return NextResponse.json({ success: true, data: newImage });
 
@@ -102,6 +106,9 @@ export async function PUT(request: Request) {
         imageSourceUrl: newImage.imageSourceUrl,
       }
     });
+
+    revalidatePath('/products');
+    revalidatePath(`/product/${productId}`);
 
     return NextResponse.json({ success: true, data: newImage });
   } catch (error) {

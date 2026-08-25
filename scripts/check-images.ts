@@ -2,10 +2,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function checkUrl(url: string | null): Promise<'valid' | 'invalid' | 'missing' | 'broken'> {
+async function checkUrl(url: string | null): Promise<'valid' | 'invalid' | 'missing' | 'broken' | 'placeholder'> {
   if (!url) return 'missing';
   try {
     if (!url.startsWith('http')) return 'invalid';
+    if (url.includes('picsum.photos')) return 'placeholder';
     
     const res = await fetch(url, { 
       method: 'GET',
@@ -30,6 +31,7 @@ async function main() {
   let missingCount = 0;
   let brokenCount = 0;
   let invalidCount = 0;
+  let placeholderCount = 0;
   
   for (const p of products) {
     // If imageUrl exists, check it. Otherwise check thumbnail.
@@ -40,6 +42,7 @@ async function main() {
     else if (status === 'missing') missingCount++;
     else if (status === 'broken') brokenCount++;
     else if (status === 'invalid') invalidCount++;
+    else if (status === 'placeholder') placeholderCount++;
     
     if (status !== 'valid') {
       console.log(`- [${status.toUpperCase()}] ${p.name}: ${urlToCheck}`);
@@ -52,6 +55,7 @@ async function main() {
   console.log(`Missing images: ${missingCount}`);
   console.log(`Broken images: ${brokenCount}`);
   console.log(`Invalid image URLs: ${invalidCount}`);
+  console.log(`Placeholder images (Picsum): ${placeholderCount}`);
 }
 
 main()
