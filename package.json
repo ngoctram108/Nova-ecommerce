@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "check-images": "tsx scripts/check-images.ts",
+    "fix-images": "tsx scripts/fix-images.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",

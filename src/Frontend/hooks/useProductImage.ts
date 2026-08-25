@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Product } from '@/Shared/types';
 import { CachedImage } from '@/Backend/services/image-cache';
 
+const PLACEHOLDER_IMAGE = 'https://picsum.photos/seed/placeholder/800/800';
+
 interface UseProductImageResult {
   imageUrl: string;
   imageAlt: string;
@@ -14,15 +16,14 @@ interface UseProductImageResult {
 export function useProductImage(product: Partial<Product>): UseProductImageResult {
   // If product already has an explicitly set imageUrl, use it.
   // Otherwise, use thumbnail as a fallback while loading.
-  const [imageUrl, setImageUrl] = useState<string>(product.imageUrl || product.thumbnail || '');
+  const [imageUrl, setImageUrl] = useState<string>(product.imageUrl || product.thumbnail || PLACEHOLDER_IMAGE);
   const [imageAlt, setImageAlt] = useState<string>(product.imageAlt || product.name || 'Product image');
-  const [isLoading, setIsLoading] = useState<boolean>(!product.imageUrl);
+  const [isLoading, setIsLoading] = useState<boolean>(!product.imageUrl && !product.thumbnail);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // If the product already has an explicit imageUrl or thumbnail (from db/mock), don't fetch.
     if (product.imageUrl || product.thumbnail) {
-      setImageUrl(product.imageUrl || product.thumbnail || '');
+      setImageUrl(product.imageUrl || product.thumbnail || PLACEHOLDER_IMAGE);
       setImageAlt(product.imageAlt || product.name || 'Product image');
       setIsLoading(false);
       return;
@@ -67,8 +68,8 @@ export function useProductImage(product: Partial<Product>): UseProductImageResul
       } catch (err) {
         if (isMounted) {
           setError(err instanceof Error ? err : new Error('Unknown error'));
-          // fallback to thumbnail if fetch fails
-          setImageUrl(product.thumbnail || '');
+          // fallback to thumbnail or placeholder if fetch fails
+          setImageUrl(product.thumbnail || PLACEHOLDER_IMAGE);
         }
       } finally {
         if (isMounted) {

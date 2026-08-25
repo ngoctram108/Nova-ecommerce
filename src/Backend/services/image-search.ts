@@ -11,9 +11,10 @@ export async function validateAndExtractImage(url: string): Promise<string | nul
     
     if (!url.startsWith('http')) return null;
 
-    let res = await fetch(url, { 
+    const res = await fetch(url, { 
       method: 'GET', 
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } 
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+      signal: AbortSignal.timeout(5000)
     });
 
     if (!res.ok) return null;
@@ -120,6 +121,22 @@ export async function searchProductImage(query: string): Promise<ImageSearchResu
     }
   } catch (error) {
     console.error('Failed to fetch from Wikipedia API:', error);
+  }
+
+  // Fallback 2: Generate from picsum
+  try {
+    const slug = query.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const fallbackUrl = `https://picsum.photos/seed/${slug}/800/800`;
+    const validUrl = await validateAndExtractImage(fallbackUrl);
+    if (validUrl) {
+      return {
+        imageUrl: validUrl,
+        imageAlt: query,
+        imageSourceUrl: fallbackUrl,
+      };
+    }
+  } catch (error) {
+    console.error('Failed to fetch from Picsum API:', error);
   }
 
   return null;
