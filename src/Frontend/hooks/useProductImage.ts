@@ -20,9 +20,9 @@ export function useProductImage(product: Partial<Product>): UseProductImageResul
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    // If the product already has an explicit imageUrl (from db/mock), don't fetch.
-    if (product.imageUrl) {
-      setImageUrl(product.imageUrl);
+    // If the product already has an explicit imageUrl or thumbnail (from db/mock), don't fetch.
+    if (product.imageUrl || product.thumbnail) {
+      setImageUrl(product.imageUrl || product.thumbnail || '');
       setImageAlt(product.imageAlt || product.name || 'Product image');
       setIsLoading(false);
       return;

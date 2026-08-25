@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
     outputFileTracingIncludes: {
-      '/api/**/*': ['./prisma/dev.db'],
+      '/**/*': ['./prisma/dev.db'],
     },
   },
   images: {
