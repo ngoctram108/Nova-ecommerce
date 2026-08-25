@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: 'Khám phá tất cả sản phẩm thời trang và phong cách sống từ NORA.',
 };
 
+export const revalidate = 60; // Revalidate cache every 60 seconds
+
 export default async function ProductsPage({
   searchParams,
 }: {
