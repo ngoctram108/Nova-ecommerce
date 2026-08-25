@@ -6,6 +6,8 @@ import ProductGallery from '@/Frontend/components/product/ProductGallery';
 import AddToCartForm from '@/Frontend/components/product/AddToCartForm';
 import styles from './ProductDetail.module.css';
 
+export const revalidate = 60;
+
 // Generate metadata for SEO
 export async function generateMetadata({
   params,
