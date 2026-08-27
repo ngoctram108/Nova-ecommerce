@@ -11,6 +11,39 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   'CANCELLED': []
 };
 
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await verifySession();
+    if (!session || session.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { id } = await props.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: { include: { product: { select: { imageUrl: true } } } },
+        user: { select: { name: true, email: true, phone: true } },
+        statusHistory: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: order });
+  } catch (error) {
+    console.error('Admin Order GET error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+
 export async function PATCH(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }

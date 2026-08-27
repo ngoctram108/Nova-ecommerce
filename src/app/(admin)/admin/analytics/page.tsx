@@ -1,9 +1,16 @@
 import React from 'react';
 import { prisma } from '@/Backend/database/prisma';
+import { verifySession } from '@/Backend/auth/session';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export default async function AnalyticsPage(props: { searchParams: Promise<{ range?: string }> }) {
+  // Auth check — only ADMIN can view analytics
+  const session = await verifySession();
+  if (!session || session.role !== 'ADMIN') {
+    redirect('/login?error=auth_required&redirect=/admin/analytics');
+  }
+
   const searchParams = await props.searchParams;
   const range = searchParams.range || '7';
   const days = parseInt(range, 10);

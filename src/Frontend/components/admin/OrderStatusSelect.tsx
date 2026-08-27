@@ -8,6 +8,7 @@ interface OrderStatusSelectProps {
   orderId: string;
   currentStatus: string;
   compact?: boolean;
+  onStatusChange?: () => void;
 }
 
 const STATUS_OPTIONS = [
@@ -19,7 +20,7 @@ const STATUS_OPTIONS = [
   { value: 'CANCELLED', label: 'Đã hủy' }
 ];
 
-export default function OrderStatusSelect({ orderId, currentStatus, compact = false }: OrderStatusSelectProps) {
+export default function OrderStatusSelect({ orderId, currentStatus, compact = false, onStatusChange }: OrderStatusSelectProps) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState('');
@@ -55,6 +56,7 @@ export default function OrderStatusSelect({ orderId, currentStatus, compact = fa
       }
 
       router.refresh(); // Refresh page data
+      onStatusChange?.();
     } catch (err: any) {
       setError(err.message);
       e.target.value = currentStatus; // Revert selection
