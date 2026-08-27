@@ -5,7 +5,7 @@ export async function GET() {
   const results: Record<string, any> = {
     env_db_url: process.env.POSTGRES_URL_NON_POOLING ? 'SET (hidden)' : 'NOT SET',
     env_db_url_pooling: process.env.POSTGRES_URL ? 'SET (hidden)' : 'NOT SET',
-    node_env: process.env.NODE_ENV,
+    node_env: process.env.NODE_ENV, envKeys: Object.keys(process.env).filter(k => k.includes('POSTGRES') || k.includes('DATABASE') || k.includes('DB')),
   };
 
   try {
