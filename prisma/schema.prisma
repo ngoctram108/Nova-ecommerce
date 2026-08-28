@@ -18,11 +18,12 @@ model User {
   role     String  @default("CUSTOMER") // "CUSTOMER" or "ADMIN"
   avatar   String?
 
-  addresses Address[]
-  orders    Order[]
-  cart      Cart?
-  reviews   Review[]
-  wishlist  WishlistItem[]
+  addresses           Address[]
+  orders               Order[]
+  cart                 Cart?
+  reviews              Review[]
+  wishlist             WishlistItem[]
+  passwordResetTokens  PasswordResetToken[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -243,4 +244,16 @@ model Review {
   content   String
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    // SHA-256 hash of the reset token
+  expiresAt DateTime  // 30 minutes from creation
+  usedAt    DateTime? // null = unused
+  createdAt DateTime  @default(now())
+
+  @@index([tokenHash])
 }

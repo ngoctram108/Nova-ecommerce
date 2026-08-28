@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       name, slug, brand, description, price, compareAt, categorySlug,
-      subcategorySlug, thumbnail, images, badge, featured, tags, specs,
+      subcategorySlug, thumbnail, images, imageUrl, imageAlt, imageSourceUrl, badge, featured, tags, specs,
       variants, colors, sizes
     } = body;
 
@@ -131,6 +131,9 @@ export async function POST(request: NextRequest) {
           subcategorySlug: subcategorySlug || null,
           thumbnail: thumbnail || 'https://placehold.co/800',
           images: JSON.stringify(images || []),
+          imageUrl: imageUrl || null,
+          imageAlt: imageAlt || null,
+          imageSourceUrl: imageSourceUrl || null,
           badge: badge || null,
           featured: featured || false,
           tags: tags ? JSON.stringify(tags) : null,

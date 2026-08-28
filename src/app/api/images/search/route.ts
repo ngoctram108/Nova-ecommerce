@@ -9,14 +9,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { productId, query, force } = body;
 
-    if (!productId || !query) {
+    if (!query) {
       return NextResponse.json(
-        { success: false, error: 'Missing productId or query' },
+        { success: false, error: 'Missing query' },
         { status: 400 }
       );
     }
 
-    if (!force) {
+    if (productId && !force) {
       const cached = await getCachedImage(productId);
       if (cached) {
         return NextResponse.json({ success: true, data: cached });
@@ -38,21 +38,23 @@ export async function POST(request: Request) {
       timestamp: Date.now(),
     };
 
-    // Save to cache
-    await setCachedImage(productId, newImage);
-    
-    // Update Prisma
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        imageUrl: newImage.imageUrl,
-        imageAlt: newImage.imageAlt,
-        imageSourceUrl: newImage.imageSourceUrl,
-      }
-    });
+    if (productId) {
+      // Save to cache
+      await setCachedImage(productId, newImage);
+      
+      // Update Prisma
+      await prisma.product.update({
+        where: { id: productId },
+        data: {
+          imageUrl: newImage.imageUrl,
+          imageAlt: newImage.imageAlt,
+          imageSourceUrl: newImage.imageSourceUrl,
+        }
+      });
 
-    revalidatePath('/products');
-    revalidatePath(`/product/${productId}`);
+      revalidatePath('/products');
+      revalidatePath(`/product/${productId}`);
+    }
 
     return NextResponse.json({ success: true, data: newImage });
 
@@ -70,9 +72,9 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { productId, imageUrl, imageAlt, imageSourceUrl } = body;
 
-    if (!productId || !imageUrl) {
+    if (!imageUrl) {
       return NextResponse.json(
-        { success: false, error: 'Missing productId or imageUrl' },
+        { success: false, error: 'Missing imageUrl' },
         { status: 400 }
       );
     }
@@ -94,21 +96,23 @@ export async function PUT(request: Request) {
       timestamp: Date.now(),
     };
 
-    // Save to cache
-    await setCachedImage(productId, newImage);
-    
-    // Update Prisma
-    await prisma.product.update({
-      where: { id: productId },
-      data: {
-        imageUrl: newImage.imageUrl,
-        imageAlt: newImage.imageAlt,
-        imageSourceUrl: newImage.imageSourceUrl,
-      }
-    });
+    if (productId) {
+      // Save to cache
+      await setCachedImage(productId, newImage);
+      
+      // Update Prisma
+      await prisma.product.update({
+        where: { id: productId },
+        data: {
+          imageUrl: newImage.imageUrl,
+          imageAlt: newImage.imageAlt,
+          imageSourceUrl: newImage.imageSourceUrl,
+        }
+      });
 
-    revalidatePath('/products');
-    revalidatePath(`/product/${productId}`);
+      revalidatePath('/products');
+      revalidatePath(`/product/${productId}`);
+    }
 
     return NextResponse.json({ success: true, data: newImage });
   } catch (error) {

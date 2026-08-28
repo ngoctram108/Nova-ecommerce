@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button, Input } from '@/Frontend/components/ui';
 import { useToast } from '@/Frontend/components/ui/Toast';
 import { Search, Plus, Edit3, Trash2, ChevronDown, X } from 'lucide-react';
+import CreateProductModal from '@/Frontend/components/admin/CreateProductModal';
 
 interface ProductRow {
   id: string;
@@ -45,6 +46,9 @@ export default function AdminProducts() {
   const [editingProduct, setEditingProduct] = useState<ProductRow | null>(null);
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [saving, setSaving] = useState(false);
+
+  // Create modal
+  const [creatingProduct, setCreatingProduct] = useState(false);
 
   // Delete
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -156,8 +160,13 @@ export default function AdminProducts() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ fontSize: 'var(--text-lead-size)', fontWeight: 600 }}>Quản lý sản phẩm</h2>
-        <div style={{ fontSize: 14, color: 'var(--color-ink-muted-80)' }}>
-          {pagination.total} sản phẩm
+        <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
+          <div style={{ fontSize: 14, color: 'var(--color-ink-muted-80)' }}>
+            {pagination.total} sản phẩm
+          </div>
+          <Button onClick={() => setCreatingProduct(true)} size="sm">
+            <Plus size={16} style={{ marginRight: 6 }} /> Thêm sản phẩm
+          </Button>
         </div>
       </div>
 
@@ -410,6 +419,18 @@ export default function AdminProducts() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Create Modal */}
+      {creatingProduct && (
+        <CreateProductModal 
+          onClose={() => setCreatingProduct(false)}
+          onSuccess={() => {
+            setCreatingProduct(false);
+            fetchProducts();
+          }}
+          categories={categories}
+        />
       )}
     </div>
   );

@@ -283,8 +283,11 @@ export default function AccountPage() {
                   <Input label="Số điện thoại" value={user.phone} readOnly />
                   <Input label="Email" value={user.email} readOnly />
                 </div>
-                <div style={{ marginTop: 24 }}>
+                <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
                   <Button variant="secondary">Cập nhật thông tin</Button>
+                  <Link href="/forgot-password" style={{ color: 'var(--color-primary)', fontWeight: 500, fontSize: 'var(--text-body-size)' }}>
+                    Đổi mật khẩu
+                  </Link>
                 </div>
               </div>
             </div>
