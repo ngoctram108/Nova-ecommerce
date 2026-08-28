@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/Frontend/contexts/AuthContext';
 import { Button, Input, StatusBadge, EmptyState } from '@/Frontend/components/ui';
-import { Package, Heart, User as UserIcon, LogOut } from 'lucide-react';
+import { Package, Heart, User as UserIcon, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -25,7 +25,7 @@ export default function AccountPage() {
   const [loginError, setLoginError] = useState('');
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'wishlist'>('orders');
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'wishlist' | 'security'>('orders');
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [ordersLoaded, setOrdersLoaded] = useState(false);
 
@@ -183,6 +183,26 @@ export default function AccountPage() {
               <Heart size={20} />
               Sản phẩm yêu thích
             </button>
+            <button
+              onClick={() => setActiveTab('security')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 16px',
+                borderRadius: 'var(--rounded-sm)',
+                border: 'none',
+                backgroundColor: activeTab === 'security' ? 'rgba(0, 102, 204, 0.05)' : 'transparent',
+                color: activeTab === 'security' ? 'var(--color-primary)' : 'var(--color-ink)',
+                fontWeight: activeTab === 'security' ? 600 : 400,
+                textAlign: 'left',
+                cursor: 'pointer',
+                transition: 'all var(--transition-fast)',
+              }}
+            >
+              <Shield size={20} />
+              Bảo mật
+            </button>
           </nav>
         </div>
 
@@ -285,9 +305,6 @@ export default function AccountPage() {
                 </div>
                 <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
                   <Button variant="secondary">Cập nhật thông tin</Button>
-                  <Link href="/forgot-password" style={{ color: 'var(--color-primary)', fontWeight: 500, fontSize: 'var(--text-body-size)' }}>
-                    Đổi mật khẩu
-                  </Link>
                 </div>
               </div>
             </div>
@@ -306,7 +323,119 @@ export default function AccountPage() {
               />
             </div>
           )}
+
+          {activeTab === 'security' && (
+            <SecurityTab />
+          )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SecurityTab() {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (newPassword !== confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError('Mật khẩu mới phải có ít nhất 8 ký tự.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage('Đổi mật khẩu thành công!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setError(data.error || 'Đổi mật khẩu thất bại.');
+      }
+    } catch (err) {
+      setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 style={{ fontSize: 'var(--text-lead-size)', fontWeight: 600, marginBottom: 'var(--space-lg)' }}>
+        Bảo mật
+      </h2>
+      <div className="tile-light" style={{ padding: 'var(--space-xl)', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)' }}>
+        <h3 style={{ fontSize: 'var(--text-title-size)', fontWeight: 600, marginBottom: 8 }}>Mật khẩu</h3>
+        <p style={{ color: 'var(--color-ink-muted-80)', marginBottom: 24 }}>Cập nhật mật khẩu để bảo vệ tài khoản của bạn.</p>
+        
+        {error && (
+          <div style={{ padding: 12, backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: 'var(--rounded-sm)', marginBottom: 16, fontSize: 'var(--text-body-size)' }}>
+            {error}
+          </div>
+        )}
+        {message && (
+          <div style={{ padding: 12, backgroundColor: '#dcfce7', color: '#15803d', borderRadius: 'var(--rounded-sm)', marginBottom: 16, fontSize: 'var(--text-body-size)' }}>
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400 }}>
+          <Input 
+            label="Mật khẩu hiện tại" 
+            type="password" 
+            placeholder="Nhập mật khẩu hiện tại" 
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+          />
+          <Input 
+            label="Mật khẩu mới" 
+            type="password" 
+            placeholder="Nhập mật khẩu mới" 
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+          />
+          <Input 
+            label="Xác nhận mật khẩu mới" 
+            type="password" 
+            placeholder="Nhập lại mật khẩu mới" 
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <Button variant="primary" type="submit" loading={loading} style={{ marginTop: 8 }}>
+            Đổi mật khẩu
+          </Button>
+        </form>
+
+        <hr style={{ margin: '32px 0', border: 'none', borderTop: '1px solid var(--color-hairline)' }} />
+
+        <h3 style={{ fontSize: 'var(--text-title-size)', fontWeight: 600, marginBottom: 8 }}>Bạn quên mật khẩu?</h3>
+        <p style={{ color: 'var(--color-ink-muted-80)', marginBottom: 24 }}>Nếu bạn không nhớ mật khẩu hiện tại, bạn có thể yêu cầu đặt lại mật khẩu qua email.</p>
+        <Button variant="outline" type="button" onClick={() => router.push('/forgot-password')}>Quên mật khẩu?</Button>
       </div>
     </div>
   );
