@@ -91,6 +91,12 @@ export default function AccountPage() {
               required
             />
             
+            <div style={{ marginTop: -8 }}>
+              <Link href="/forgot-password" style={{ color: 'var(--color-primary)', fontSize: 'var(--text-caption-size)', fontWeight: 500 }}>
+                Quên mật khẩu?
+              </Link>
+            </div>
+            
             {loginError && (
               <div style={{ color: 'var(--color-error)', fontSize: 'var(--text-fine-print-size)' }}>
                 {loginError}

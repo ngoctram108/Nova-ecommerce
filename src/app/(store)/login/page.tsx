@@ -75,8 +75,8 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)} 
               placeholder="Nhập mật khẩu"
             />
-            <div style={{ marginTop: 8, textAlign: 'right' }}>
-              <Link href="/forgot-password" style={{ color: 'var(--color-primary)', fontSize: 'var(--text-caption-size)' }}>
+            <div style={{ marginTop: 8 }}>
+              <Link href="/forgot-password" style={{ color: 'var(--color-primary)', fontSize: 'var(--text-caption-size)', fontWeight: 500 }}>
                 Quên mật khẩu?
               </Link>
             </div>
