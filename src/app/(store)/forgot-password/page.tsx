@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
         <h1 className="text-display-sm" style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Quên mật khẩu</h1>
         
         <p style={{ marginBottom: 'var(--space-lg)', color: 'var(--color-ink-muted-80)', textAlign: 'center', fontSize: 'var(--text-body-size)' }}>
-          Nhập email của bạn và chúng tôi sẽ gửi liên kết để đặt lại mật khẩu.
+          Nhập email của tài khoản NORA để nhận liên kết đặt lại mật khẩu.
         </p>
 
         {error && (

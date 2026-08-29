@@ -68,11 +68,11 @@ function ResetPasswordForm() {
     return (
       <div className="tile-light" style={{ padding: 'var(--space-xl)', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)' }}>
         <div style={{ padding: 12, backgroundColor: '#fee2e2', color: '#b91c1c', borderRadius: 'var(--rounded-sm)', marginBottom: 16, fontSize: 'var(--text-body-size)' }}>
-          Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu một liên kết mới.
+          Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.
         </div>
         <div style={{ textAlign: 'center' }}>
           <Link href="/forgot-password">
-            <Button>Yêu cầu link mới</Button>
+            <Button>Yêu cầu liên kết mới</Button>
           </Link>
         </div>
       </div>

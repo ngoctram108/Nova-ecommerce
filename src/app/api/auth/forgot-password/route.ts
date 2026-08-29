@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      message: 'Nếu email tồn tại, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.'
+      message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.'
     });
 
   } catch (error) {
