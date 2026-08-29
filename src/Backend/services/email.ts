@@ -127,7 +127,7 @@ class ResendEmailService implements EmailService {
 
 export function getEmailService(): EmailService {
   const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'NORA <onboarding@resend.dev>';
+  const fromEmail = process.env.EMAIL_FROM || 'NORA <onboarding@resend.dev>';
 
   if (resendApiKey) {
     return new ResendEmailService(resendApiKey, fromEmail);
