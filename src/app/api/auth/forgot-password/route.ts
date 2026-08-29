@@ -38,8 +38,16 @@ export async function POST(req: Request) {
       const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
       const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
       
-      const emailService = getEmailService();
-      await emailService.sendPasswordResetEmail(user.email, resetUrl, 30);
+      try {
+        const emailService = getEmailService();
+        await emailService.sendPasswordResetEmail(user.email, resetUrl, 30);
+      } catch (emailError) {
+        console.error('Failed to send email via Resend:', emailError);
+        return NextResponse.json(
+          { error: 'Hệ thống gửi email đang gặp sự cố. Vui lòng thử lại sau.' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({
