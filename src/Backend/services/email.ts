@@ -133,6 +133,11 @@ export function getEmailService(): EmailService {
     return new ResendEmailService(resendApiKey, fromEmail);
   }
 
+  // Check if we are in production
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+    throw new Error('RESEND_API_KEY is missing in Production environment.');
+  }
+
   // Fallback to console logging in development
   console.warn('⚠️  RESEND_API_KEY not set — using ConsoleEmailService (reset links will be logged to console)');
   return new ConsoleEmailService();
