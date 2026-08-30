@@ -15,6 +15,8 @@ export async function POST(req: Request) {
       where: { email },
     });
 
+    console.log(`[Forgot Password] Request for email: ${email} - User found in DB: ${!!user}`);
+
     // We still return success even if user not found to prevent user enumeration
     if (user) {
       // 1. Generate random token
