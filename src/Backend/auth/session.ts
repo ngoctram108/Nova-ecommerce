@@ -55,7 +55,13 @@ export async function verifySession() {
     return null;
   }
 
-  return { isAuth: true, userId: session.userId, role: session.role, email: session.email, name: session.name };
+  return { 
+    isAuth: true, 
+    userId: session.userId, 
+    role: typeof session.role === 'string' ? session.role.toUpperCase() : session.role, 
+    email: session.email, 
+    name: session.name 
+  };
 }
 
 export async function deleteSession() {

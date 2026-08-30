@@ -24,7 +24,7 @@ export async function POST(req: Request) {
           await createSession({
             userId: user.id,
             email: user.email,
-            role: user.role,
+            role: user.role.toUpperCase(),
             name: user.name,
           });
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
               id: user.id,
               email: user.email,
               name: user.name,
-              role: user.role,
+              role: user.role.toUpperCase(),
             }
           });
         }

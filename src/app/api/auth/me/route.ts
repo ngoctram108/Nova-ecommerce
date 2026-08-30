@@ -24,6 +24,8 @@ export async function GET() {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
+    user.role = user.role.toUpperCase();
+
     return NextResponse.json({ user });
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
