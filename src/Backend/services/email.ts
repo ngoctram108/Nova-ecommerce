@@ -1,8 +1,10 @@
+import nodemailer from 'nodemailer';
+
 /**
  * Email Service Abstraction
  * 
  * - Development: Logs reset link to console (ConsoleEmailService)
- * - Production: Sends real email via Resend API (ResendEmailService)
+ * - Production: Sends real email via Gmail SMTP (SmtpEmailService)
  */
 
 // ── Interface ──
@@ -89,36 +91,38 @@ class ConsoleEmailService implements EmailService {
   }
 }
 
-// ── Resend Email Service (Production) ──
+// ── SMTP Email Service (Production) ──
 
-class ResendEmailService implements EmailService {
-  private apiKey: string;
+class SmtpEmailService implements EmailService {
+  private transporter: nodemailer.Transporter;
   private fromEmail: string;
 
-  constructor(apiKey: string, fromEmail: string = 'NORA <noreply@nora.com>') {
-    this.apiKey = apiKey;
-    this.fromEmail = fromEmail;
+  constructor() {
+    this.fromEmail = process.env.EMAIL_FROM || 'NORA <noreply@nora.com>';
+    
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '465', 10),
+      secure: process.env.SMTP_SECURE !== 'false', // default to true for 465
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
   }
 
   async sendPasswordResetEmail(to: string, resetUrl: string, expiresInMinutes: number): Promise<void> {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const info = await this.transporter.sendMail({
         from: this.fromEmail,
-        to: [to],
+        to: to,
         subject: 'NORA — Đặt lại mật khẩu của bạn',
         html: buildResetEmailHtml(resetUrl, expiresInMinutes),
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Resend API error:', errorData);
-      throw new Error('Failed to send password reset email');
+      });
+      console.log('SMTP Email Message sent: %s', info.messageId);
+    } catch (error) {
+      console.error('SMTP API error:', error);
+      throw new Error('Failed to send password reset email via SMTP');
     }
   }
 }
@@ -126,19 +130,18 @@ class ResendEmailService implements EmailService {
 // ── Factory ──
 
 export function getEmailService(): EmailService {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || 'NORA <onboarding@resend.dev>';
+  const isSmtpConfigured = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD;
 
-  if (resendApiKey) {
-    return new ResendEmailService(resendApiKey, fromEmail);
+  if (isSmtpConfigured) {
+    return new SmtpEmailService();
   }
 
   // Check if we are in production
   if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
-    throw new Error('RESEND_API_KEY is missing in Production environment.');
+    throw new Error('SMTP_PASSWORD or SMTP_USER is missing in Production environment.');
   }
 
   // Fallback to console logging in development
-  console.warn('⚠️  RESEND_API_KEY not set — using ConsoleEmailService (reset links will be logged to console)');
+  console.warn('⚠️  SMTP not configured — using ConsoleEmailService (reset links will be logged to console)');
   return new ConsoleEmailService();
 }
