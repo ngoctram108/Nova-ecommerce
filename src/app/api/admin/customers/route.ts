@@ -15,13 +15,19 @@ export async function GET(request: NextRequest) {
     const q = searchParams.get('q') || '';
     const sort = searchParams.get('sort') || 'newest';
 
-    const where: any = { role: 'CUSTOMER' };
+    const where: any = { 
+      role: { equals: 'CUSTOMER', mode: 'insensitive' } 
+    };
 
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: 'insensitive' } },
-        { email: { contains: q, mode: 'insensitive' } },
-        { phone: { contains: q, mode: 'insensitive' } },
+      where.AND = [
+        {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { email: { contains: q, mode: 'insensitive' } },
+            { phone: { contains: q, mode: 'insensitive' } },
+          ]
+        }
       ];
     }
 
@@ -62,10 +68,10 @@ export async function GET(request: NextRequest) {
         email: c.email,
         phone: c.phone,
         avatar: c.avatar,
-        orderCount: c._count.orders,
-        totalSpent: c.orders
+        orderCount: c._count?.orders || 0,
+        totalSpent: (c.orders || [])
           .filter(o => o.status !== 'CANCELLED')
-          .reduce((sum, o) => sum + o.total, 0),
+          .reduce((sum, o) => sum + (o.total || 0), 0),
         createdAt: c.createdAt,
       })),
       pagination: {

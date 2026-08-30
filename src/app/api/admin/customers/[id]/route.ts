@@ -46,16 +46,16 @@ export async function GET(
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
 
-    const totalSpent = customer.orders
+    const totalSpent = (customer.orders || [])
       .filter(o => o.status !== 'CANCELLED')
-      .reduce((sum, o) => sum + o.total, 0);
+      .reduce((sum, o) => sum + (o.total || 0), 0);
 
     return NextResponse.json({
       success: true,
       data: {
         ...customer,
         totalSpent,
-        orderCount: customer.orders.length,
+        orderCount: customer.orders?.length || 0,
       },
     });
   } catch (error) {

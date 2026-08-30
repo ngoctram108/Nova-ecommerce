@@ -205,13 +205,13 @@ export default function AdminCustomers() {
                         {customer.avatar ? (
                           <img src={customer.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                          customer.name.charAt(0).toUpperCase()
+                          (customer.name || '?').charAt(0).toUpperCase()
                         )}
                       </div>
-                      <span style={{ fontWeight: 500, fontSize: 14 }}>{customer.name}</span>
+                      <span style={{ fontWeight: 500, fontSize: 14 }}>{customer.name || 'Khách hàng'}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--color-ink-muted-80)' }}>{customer.email}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--color-ink-muted-80)' }}>{customer.email || '—'}</td>
                   <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--color-ink-muted-80)' }}>{customer.phone || '—'}</td>
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     <span style={{ 
@@ -226,7 +226,7 @@ export default function AdminCustomers() {
                     {formatCurrency(customer.totalSpent)}
                   </td>
                   <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--color-ink-muted-80)' }}>
-                    {formatDate(customer.createdAt)}
+                    {customer.createdAt ? formatDate(customer.createdAt) : '—'}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                     <ChevronRight size={16} color="var(--color-ink-muted-80)" />
