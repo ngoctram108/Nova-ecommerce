@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/Backend/auth/session';
 import { prisma } from '@/Backend/database/prisma';
