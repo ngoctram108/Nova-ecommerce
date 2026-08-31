@@ -22,8 +22,6 @@ export default function PaginationClient({
       params.delete('page');
     }
     router.push(`/products?${params.toString()}`);
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

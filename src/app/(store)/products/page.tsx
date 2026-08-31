@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { queryProducts } from '@/Backend/services/catalog';
 import { ProductFilters } from '@/Shared/types';
 import { ProductCard, Pagination, EmptyState } from '@/Frontend/components/ui';
 import ProductFilterSidebar from '@/Frontend/components/sections/ProductFilterSidebar';
+import { ProductListSkeleton } from './loading';
 
 import styles from './Products.module.css';
 
@@ -41,9 +42,6 @@ export default async function ProductsPage({
   if (resolvedParams.inStock === 'true') filters.inStock = true;
   if (typeof resolvedParams.rating === 'string') filters.rating = Number(resolvedParams.rating);
 
-  // Fetch data
-  const result = await queryProducts(filters);
-
   return (
     <div className="container section">
       <div
@@ -59,11 +57,24 @@ export default async function ProductsPage({
         <h1 className="text-display-lg">
           {filters.category ? filters.category.replace('-', ' ') : 'Tất cả sản phẩm'}
         </h1>
-        <div style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-ink-muted-80)' }}>
-          Hiển thị {result.data.length} trên tổng {result.pagination.total} sản phẩm
-        </div>
       </div>
 
+      {/* Trigger Suspense when query string changes to show skeleton immediately */}
+      <Suspense fallback={<ProductListSkeleton />} key={JSON.stringify(resolvedParams)}>
+        <ProductListContent filters={filters} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ProductListContent({ filters }: { filters: ProductFilters }) {
+  const result = await queryProducts(filters);
+
+  return (
+    <>
+      <div style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-ink-muted-80)', marginBottom: 'var(--space-lg)', textAlign: 'right', marginTop: '-60px' }}>
+        Hiển thị {result.data.length} trên tổng {result.pagination.total} sản phẩm
+      </div>
       <div className={styles.pageLayout}>
         {/* Sidebar */}
         <aside className={styles.sidebarWrapper}>
@@ -82,7 +93,6 @@ export default async function ProductsPage({
 
               {/* Pagination */}
               <div style={{ marginTop: 'var(--space-xxl)' }}>
-                {/* Client-side pagination logic wrapped in a client component or handled via searchParams */}
                 <PaginationClient
                   currentPage={result.pagination.page}
                   totalPages={result.pagination.totalPages}
@@ -100,7 +110,7 @@ export default async function ProductsPage({
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
