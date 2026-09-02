@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   description: 'Khám phá tất cả sản phẩm thời trang và phong cách sống từ NORA.',
 };
 
-export const revalidate = 60; // Revalidate cache every 60 seconds
+// Force dynamic rendering so loading.tsx skeleton shows immediately during navigation
+// instead of serving a stale cached page that masks the loading state
+export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage({
   searchParams,

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Pagination } from '@/Frontend/components/ui';
 
@@ -13,6 +13,7 @@ export default function PaginationClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -21,14 +22,31 @@ export default function PaginationClient({
     } else {
       params.delete('page');
     }
-    router.push(`/products?${params.toString()}`);
+
+    // Wrap in startTransition so React treats this as a non-urgent update.
+    // This allows the Suspense boundary (key={JSON.stringify(resolvedParams)})
+    // in the parent server component to show its fallback skeleton while
+    // the new page data is being fetched. Without startTransition,
+    // router.push triggers a hard navigation that doesn't interact
+    // properly with the Suspense boundary, causing the old data to remain
+    // visible and requiring a second click.
+    startTransition(() => {
+      router.push(`/products?${params.toString()}`, { scroll: true });
+    });
   };
 
   return (
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-    />
+    <div style={{ opacity: isPending ? 0.5 : 1, transition: 'opacity 0.2s', pointerEvents: isPending ? 'none' : 'auto' }}>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+      {isPending && (
+        <div style={{ textAlign: 'center', marginTop: 8, fontSize: 'var(--text-caption-size)', color: 'var(--color-ink-muted-80)' }}>
+          Đang tải...
+        </div>
+      )}
+    </div>
   );
 }
