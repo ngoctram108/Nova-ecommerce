@@ -54,9 +54,9 @@ export async function queryProducts(filters: ProductFilters = {}) {
 
     if (filters.q) {
       where.OR = [
-        { name: { contains: filters.q } },
-        { description: { contains: filters.q } },
-        { brand: { contains: filters.q } },
+        { name: { contains: filters.q, mode: 'insensitive' } },
+        { description: { contains: filters.q, mode: 'insensitive' } },
+        { brand: { contains: filters.q, mode: 'insensitive' } },
       ];
     }
 

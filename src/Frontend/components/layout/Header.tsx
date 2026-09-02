@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { useCart } from '@/Frontend/contexts/CartContext';
 import { useAuth } from '@/Frontend/contexts/AuthContext';
@@ -18,10 +18,15 @@ export default function Header() {
   // Conditionally render desktop mega menus
   const [activeDesktopMenu, setActiveDesktopMenu] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   const pathname = usePathname();
+  const router = useRouter();
   const { itemCount } = useCart();
   const { user } = useAuth();
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,7 +53,22 @@ export default function Header() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setActiveDesktopMenu(null);
+    setIsSearchOpen(false);
+    
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setSearchQuery(params.get('q') || '');
+    }
   }, [pathname]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   const toggleMobileCategory = (cat: string) => {
     setExpandedMobileCategory(prev => prev === cat ? null : cat);
@@ -89,7 +109,7 @@ export default function Header() {
             </Link>
 
             <div className={styles.mobileIconGroup}>
-              <button className={styles.iconBtn} aria-label="Tìm kiếm">
+              <button className={styles.iconBtn} onClick={() => setIsMobileMenuOpen(true)} aria-label="Tìm kiếm">
                 <Search size={22} strokeWidth={1.5} />
               </button>
               <Link href="/cart" className={styles.iconBtn} aria-label="Giỏ hàng">
@@ -144,9 +164,29 @@ export default function Header() {
 
             {/* Desktop Icons */}
             <div className={styles.icons}>
-              <button className={styles.iconBtn} aria-label="Tìm kiếm">
-                <Search size={22} strokeWidth={1.5} />
-              </button>
+              {isSearchOpen ? (
+                <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder="Tìm kiếm..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    onBlur={() => {
+                      if (!searchQuery) setIsSearchOpen(false);
+                    }}
+                  />
+                  <button type="submit" className={styles.iconBtn} aria-label="Tìm kiếm">
+                    <Search size={22} strokeWidth={1.5} />
+                  </button>
+                </form>
+              ) : (
+                <button className={styles.iconBtn} onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }} aria-label="Tìm kiếm">
+                  <Search size={22} strokeWidth={1.5} />
+                </button>
+              )}
               <Link href={user?.role === 'ADMIN' ? '/admin' : '/account'} className={styles.iconBtn} aria-label="Tài khoản">
                 <User size={22} strokeWidth={1.5} />
               </Link>
@@ -251,6 +291,19 @@ export default function Header() {
         
         {/* Drawer Content */}
         <div className={styles.drawerContent}>
+          <form onSubmit={handleSearchSubmit} className={styles.searchFormMobile} style={{ marginLeft: 0, marginRight: 0, marginTop: 8 }}>
+            <input
+              type="text"
+              className={styles.searchInputMobile}
+              placeholder="Tìm kiếm sản phẩm..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button type="submit" className={styles.iconBtn} aria-label="Tìm kiếm">
+              <Search size={20} strokeWidth={1.5} />
+            </button>
+          </form>
+
           <Link href="/products?sort=newest" className={styles.drawerItem}>
             Sản phẩm mới
           </Link>
