@@ -85,6 +85,13 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([categorySlug])
+  @@index([brand])
+  @@index([price])
+  @@index([createdAt])
+  @@index([rating])
+  @@index([featured])
 }
 
 model ProductColor {

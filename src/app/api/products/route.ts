@@ -47,8 +47,7 @@ export async function GET(request: NextRequest) {
     if (sort) filters.sort = sort as any;
     
     // Query the catalog service
-    // In a real app, this would hit a database or search engine (e.g. Algolia/Elasticsearch)
-    const result = queryProducts(filters);
+    const result = await queryProducts(filters);
     
     return NextResponse.json(result);
   } catch (error) {

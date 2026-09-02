@@ -2,51 +2,44 @@ import { ProductFilters, SortOption } from '@/Shared/types';
 import { prisma } from '@/Backend/database/prisma';
 import { Prisma } from '@prisma/client';
 import { products as mockProducts } from '@/Backend/database/data/products';
+import { unstable_cache } from 'next/cache';
 
 /* ── Available filter values ── */
 
-export async function getAvailableFilters(whereClause: Prisma.ProductWhereInput) {
-  try {
-    const [categories, subcategories, brands, maxPriceAgg, colors, sizes] = await Promise.all([
-      prisma.product.findMany({ where: whereClause, select: { categorySlug: true }, distinct: ['categorySlug'] }),
-      prisma.product.findMany({ where: whereClause, select: { subcategorySlug: true }, distinct: ['subcategorySlug'] }),
-      prisma.product.findMany({ where: whereClause, select: { brand: true }, distinct: ['brand'] }),
-      prisma.product.aggregate({ where: whereClause, _max: { price: true }, _min: { price: true } }),
-      prisma.productColor.findMany({ 
-        where: { product: whereClause }, 
-        select: { name: true }, 
-        distinct: ['name'] 
-      }),
-      prisma.productSize.findMany({ 
-        where: { product: whereClause }, 
-        select: { name: true }, 
-        distinct: ['name'] 
-      })
-    ]);
+export const getAvailableFilters = unstable_cache(
+  async (whereClause?: Prisma.ProductWhereInput) => {
+    try {
+      // We ignore the whereClause for filters to avoid calculating it on every search/filter
+      // We also removed color, size, and price queries as they are not used in the UI sidebar
+      const [categories, subcategories, brands] = await Promise.all([
+        prisma.product.findMany({ select: { categorySlug: true }, distinct: ['categorySlug'] }),
+        prisma.product.findMany({ select: { subcategorySlug: true }, distinct: ['subcategorySlug'] }),
+        prisma.product.findMany({ select: { brand: true }, distinct: ['brand'] }),
+      ]);
 
-    return {
-      categories: categories.map(c => c.categorySlug).filter(Boolean).sort(),
-      subcategories: subcategories.map(s => s.subcategorySlug).filter(Boolean) as string[],
-      brands: brands.map(b => b.brand).filter(Boolean).sort(),
-      colors: colors.map(c => c.name).sort(),
-      sizes: sizes.map(s => s.name).sort(),
-      priceRange: { 
-        min: maxPriceAgg._min.price || 0, 
-        max: maxPriceAgg._max.price || 0 
-      },
-    };
-  } catch (e) {
-    console.warn("Prisma getAvailableFilters failed, returning mock empty filters", e);
-    return {
-      categories: [],
-      subcategories: [],
-      brands: [],
-      colors: [],
-      sizes: [],
-      priceRange: { min: 0, max: 10000000 },
-    };
-  }
-}
+      return {
+        categories: categories.map(c => c.categorySlug).filter(Boolean).sort(),
+        subcategories: subcategories.map(s => s.subcategorySlug).filter(Boolean) as string[],
+        brands: brands.map(b => b.brand).filter(Boolean).sort(),
+        colors: [], // Not used in UI
+        sizes: [], // Not used in UI
+        priceRange: { min: 0, max: 10000000 }, // Inputs are uncontrolled in UI
+      };
+    } catch (e) {
+      console.warn("Prisma getAvailableFilters failed, returning mock empty filters", e);
+      return {
+        categories: [],
+        subcategories: [],
+        brands: [],
+        colors: [],
+        sizes: [],
+        priceRange: { min: 0, max: 10000000 },
+      };
+    }
+  },
+  ['global-available-filters'],
+  { revalidate: 3600 } // Cache for 1 hour
+);
 
 /* ── Main query function ── */
 

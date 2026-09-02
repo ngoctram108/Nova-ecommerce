@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       totalRevenue,
       totalCustomers,
       totalProducts,
-      inventoryStats,
+      totalStockAgg,
+      lowStockCount,
+      outOfStockCount,
       recentOrders,
       topSellingItems,
     ] = await Promise.all([
@@ -26,9 +28,9 @@ export async function GET(request: NextRequest) {
       }),
       prisma.user.count({ where: { role: 'CUSTOMER' } }),
       prisma.product.count(),
-      prisma.inventory.findMany({
-        select: { stockQuantity: true, lowStockThreshold: true }
-      }),
+      prisma.inventory.aggregate({ _sum: { stockQuantity: true } }),
+      prisma.inventory.count({ where: { stockQuantity: { gt: 0, lte: 5 } } }),
+      prisma.inventory.count({ where: { stockQuantity: 0 } }),
       prisma.order.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -45,9 +47,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const totalStock = inventoryStats.reduce((sum, inv) => sum + inv.stockQuantity, 0);
-    const lowStockCount = inventoryStats.filter(inv => inv.stockQuantity > 0 && inv.stockQuantity <= inv.lowStockThreshold).length;
-    const outOfStockCount = inventoryStats.filter(inv => inv.stockQuantity === 0).length;
+    const totalStock = totalStockAgg._sum.stockQuantity || 0;
 
     return NextResponse.json({
       stats: {
