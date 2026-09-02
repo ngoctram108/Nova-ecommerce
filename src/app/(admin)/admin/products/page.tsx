@@ -53,6 +53,12 @@ export default function AdminProducts() {
   // Delete
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Edit Image Management
+  const [fetchingDetails, setFetchingDetails] = useState(false);
+  const [imgInputUrl, setImgInputUrl] = useState('');
+  const [validatingImage, setValidatingImage] = useState(false);
+  const [searchingImage, setSearchingImage] = useState(false);
+
   const { success, error: showError } = useToast();
 
   const fetchProducts = useCallback(async () => {
@@ -93,7 +99,8 @@ export default function AdminProducts() {
     return () => clearTimeout(t);
   }, [debouncedSearch]);
 
-  const openEdit = (product: ProductRow) => {
+  const openEdit = async (product: ProductRow) => {
+    setFetchingDetails(true);
     setEditingProduct(product);
     setEditForm({
       name: product.name,
@@ -102,6 +109,109 @@ export default function AdminProducts() {
       compareAt: product.compareAt || '',
       badge: product.badge || '',
       featured: product.featured,
+      images: [],
+      mainImageIndex: 0,
+      imageUrl: product.imageUrl || '',
+      imageAlt: '',
+      imageSourceUrl: '',
+    });
+
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        let parsedImages = [];
+        try {
+           parsedImages = data.data.images ? JSON.parse(data.data.images) : [];
+        } catch (e) {}
+        
+        let mainIdx = 0;
+        if (data.data.imageUrl) {
+           const idx = parsedImages.findIndex((img: any) => img.url === data.data.imageUrl);
+           if (idx !== -1) mainIdx = idx;
+           else if (parsedImages.length === 0) {
+             parsedImages.push({ url: data.data.imageUrl, alt: data.data.imageAlt || '', source: data.data.imageSourceUrl || '' });
+           }
+        }
+
+        setEditForm(prev => ({
+          ...prev,
+          images: parsedImages,
+          mainImageIndex: mainIdx,
+          imageUrl: data.data.imageUrl,
+          imageAlt: data.data.imageAlt,
+          imageSourceUrl: data.data.imageSourceUrl
+        }));
+      }
+    } catch (e) {
+      console.error(e);
+      showError('Không thể tải chi tiết hình ảnh');
+    } finally {
+      setFetchingDetails(false);
+    }
+  };
+
+  const handleValidateEditImage = async () => {
+    if (!imgInputUrl) return;
+    setValidatingImage(true);
+    try {
+      const res = await fetch('/api/images/search', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: imgInputUrl, imageAlt: editForm.name })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEditForm(prev => ({
+          ...prev,
+          images: [...(prev.images || []), { url: data.data.imageUrl, alt: data.data.imageAlt, source: data.data.imageSourceUrl }]
+        }));
+        setImgInputUrl('');
+        success('Đã thêm ảnh');
+      } else {
+        showError(data.error || 'URL ảnh không hợp lệ');
+      }
+    } catch {
+      showError('Lỗi kết nối');
+    } finally {
+      setValidatingImage(false);
+    }
+  };
+
+  const handleSearchEditImage = async () => {
+    if (!editForm.name && !editForm.brand) return showError('Vui lòng nhập tên sản phẩm hoặc thương hiệu để tìm kiếm');
+    setSearchingImage(true);
+    try {
+      const query = `${editForm.brand || ''} ${editForm.name || ''}`.trim();
+      const res = await fetch('/api/images/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEditForm(prev => ({
+          ...prev,
+          images: [...(prev.images || []), { url: data.data.imageUrl, alt: data.data.imageAlt, source: data.data.imageSourceUrl }]
+        }));
+        success('Đã thêm ảnh tự động');
+      } else {
+        showError(data.error || 'Không tìm thấy ảnh');
+      }
+    } catch {
+      showError('Lỗi kết nối');
+    } finally {
+      setSearchingImage(false);
+    }
+  };
+
+  const removeEditImage = (index: number) => {
+    setEditForm(prev => {
+      const newImages = [...(prev.images || [])];
+      newImages.splice(index, 1);
+      let newMainIdx = prev.mainImageIndex;
+      if (newMainIdx >= newImages.length) newMainIdx = Math.max(0, newImages.length - 1);
+      return { ...prev, images: newImages, mainImageIndex: newMainIdx };
     });
   };
 
@@ -109,6 +219,9 @@ export default function AdminProducts() {
     if (!editingProduct) return;
     setSaving(true);
     try {
+      const images = editForm.images || [];
+      const mainImage = images.length > 0 ? images[editForm.mainImageIndex || 0] : null;
+
       const res = await fetch(`/api/admin/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -119,6 +232,11 @@ export default function AdminProducts() {
           compareAt: editForm.compareAt ? parseFloat(editForm.compareAt) : null,
           badge: editForm.badge || null,
           featured: editForm.featured,
+          images: images,
+          imageUrl: mainImage ? mainImage.url : null,
+          thumbnail: mainImage ? mainImage.url : 'https://placehold.co/800',
+          imageAlt: mainImage ? mainImage.alt : null,
+          imageSourceUrl: mainImage ? mainImage.source : null,
         }),
       });
       const data = await res.json();
@@ -335,7 +453,7 @@ export default function AdminProducts() {
           <div 
             style={{ 
               backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', padding: 'var(--space-xl)',
-              width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+              width: 600, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -347,6 +465,12 @@ export default function AdminProducts() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {fetchingDetails && (
+                <div style={{ textAlign: 'center', padding: '16px 0', color: 'var(--color-ink-muted-80)' }}>
+                  Đang tải chi tiết sản phẩm...
+                </div>
+              )}
+
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Tên sản phẩm</label>
                 <input
@@ -411,11 +535,74 @@ export default function AdminProducts() {
                   </div>
                 </div>
               </div>
+
+              {/* HÌNH ẢNH SẢN PHẨM */}
+              <div style={{ marginTop: 'var(--space-md)', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--color-divider-soft)' }}>
+                <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Hình ảnh sản phẩm</h4>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Thêm ảnh qua URL</label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <input 
+                        value={imgInputUrl} 
+                        onChange={e => setImgInputUrl(e.target.value)} 
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }} 
+                        placeholder="https://..." 
+                      />
+                      <Button variant="outline" onClick={handleValidateEditImage} loading={validatingImage}>Thêm</Button>
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 14, color: 'var(--color-ink-muted-80)' }}>Hoặc</span>
+                    <Button variant="outline" onClick={handleSearchEditImage} loading={searchingImage}>
+                      <Search size={16} style={{ marginRight: 6 }} /> Tìm ảnh tự động
+                    </Button>
+                  </div>
+
+                  {(editForm.images || []).length > 0 ? (
+                    <div style={{ marginTop: 16 }}>
+                      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Danh sách hình ảnh ({editForm.images.length})</p>
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        {editForm.images.map((img: any, i: number) => (
+                          <div key={i} style={{ 
+                            width: 120, height: 120, position: 'relative', borderRadius: 8, 
+                            border: editForm.mainImageIndex === i ? '2px solid var(--color-primary)' : '1px solid var(--color-hairline)',
+                            overflow: 'hidden', cursor: 'pointer' 
+                          }} onClick={() => setEditForm(prev => ({ ...prev, mainImageIndex: i }))}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={img.url} alt={img.alt || 'Product Image'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); removeEditImage(i); }} 
+                              style={{ position: 'absolute', top: 4, right: 4, width: 24, height: 24, background: 'rgba(255,255,255,0.9)', borderRadius: '50%', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-danger)' }}
+                              title="Xóa ảnh"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            
+                            {editForm.mainImageIndex === i && (
+                              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'var(--color-primary)', color: '#fff', fontSize: 10, textAlign: 'center', padding: '2px 0', fontWeight: 600 }}>
+                                ẢNH CHÍNH
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: 16, padding: 24, textAlign: 'center', border: '1px dashed var(--color-hairline)', borderRadius: 8, color: 'var(--color-ink-muted-80)' }}>
+                      Chưa có hình ảnh nào.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 'var(--space-xl)', paddingTop: 'var(--space-lg)', borderTop: '1px solid var(--color-divider-soft)' }}>
               <Button variant="outline" onClick={() => setEditingProduct(null)}>Huỷ</Button>
-              <Button onClick={handleSave} loading={saving}>Lưu thay đổi</Button>
+              <Button onClick={handleSave} loading={saving} disabled={fetchingDetails}>Lưu thay đổi</Button>
             </div>
           </div>
         </div>

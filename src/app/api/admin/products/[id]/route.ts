@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifySession } from '@/Backend/auth/session';
 import { prisma } from '@/Backend/database/prisma';
 
@@ -59,7 +60,7 @@ export async function PUT(
     const allowedFields = [
       'name', 'slug', 'brand', 'description', 'price', 'compareAt',
       'categorySlug', 'subcategorySlug', 'thumbnail', 'imageUrl', 'imageAlt',
-      'badge', 'featured', 'rating', 'reviewCount'
+      'badge', 'featured', 'rating', 'reviewCount', 'imageSourceUrl'
     ];
 
     for (const field of allowedFields) {
@@ -82,6 +83,10 @@ export async function PUT(
       where: { id },
       data: updateData,
     });
+
+    revalidatePath('/products');
+    revalidatePath('/admin/products');
+    revalidatePath(`/product/${product.slug}`);
 
     return NextResponse.json({ success: true, data: product });
   } catch (error: any) {
