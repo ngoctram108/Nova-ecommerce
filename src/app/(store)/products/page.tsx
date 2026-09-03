@@ -13,9 +13,7 @@ export const metadata: Metadata = {
   description: 'Khám phá tất cả sản phẩm thời trang và phong cách sống từ NORA.',
 };
 
-// Force dynamic rendering so loading.tsx skeleton shows immediately during navigation
-// instead of serving a stale cached page that masks the loading state
-export const dynamic = 'force-dynamic';
+
 
 export default async function ProductsPage({
   searchParams,
@@ -88,8 +86,8 @@ async function ProductListContent({ filters }: { filters: ProductFilters }) {
           {result.data.length > 0 ? (
             <>
               <div className={styles.productGrid}>
-                {result.data.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {result.data.map((product, index) => (
+                  <ProductCard key={product.id} product={product} priority={index < 4} />
                 ))}
               </div>
 

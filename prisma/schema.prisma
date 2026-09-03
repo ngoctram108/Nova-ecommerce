@@ -93,6 +93,7 @@ model Product {
   @@index([createdAt])
   @@index([rating])
   @@index([featured])
+  @@index([categorySlug, price])
 }
 
 model ProductColor {
