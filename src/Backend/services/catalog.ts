@@ -12,9 +12,9 @@ export const getAvailableFilters = unstable_cache(
       // We ignore the whereClause for filters to avoid calculating it on every search/filter
       // We also removed color, size, and price queries as they are not used in the UI sidebar
       const [categories, subcategories, brands] = await Promise.all([
-        prisma.product.findMany({ select: { categorySlug: true }, distinct: ['categorySlug'] }),
-        prisma.product.findMany({ select: { subcategorySlug: true }, distinct: ['subcategorySlug'] }),
-        prisma.product.findMany({ select: { brand: true }, distinct: ['brand'] }),
+        prisma.product.groupBy({ by: ['categorySlug'] }),
+        prisma.product.groupBy({ by: ['subcategorySlug'] }),
+        prisma.product.groupBy({ by: ['brand'] }),
       ]);
 
       return {

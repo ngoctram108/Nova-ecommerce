@@ -23,16 +23,10 @@ export default function PaginationClient({
       params.delete('page');
     }
 
-    // Wrap in startTransition so React treats this as a non-urgent update.
-    // This allows the Suspense boundary (key={JSON.stringify(resolvedParams)})
-    // in the parent server component to show its fallback skeleton while
-    // the new page data is being fetched. Without startTransition,
-    // router.push triggers a hard navigation that doesn't interact
-    // properly with the Suspense boundary, causing the old data to remain
-    // visible and requiring a second click.
-    startTransition(() => {
-      router.push(`/products?${params.toString()}`, { scroll: true });
-    });
+    // We do not use startTransition here because we WANT the Suspense boundary
+    // in the parent server component to show its fallback skeleton immediately.
+    // In Next.js App Router, router.push without transition will trigger the closest Suspense boundary.
+    router.push(`/products?${params.toString()}`, { scroll: true });
   };
 
   return (

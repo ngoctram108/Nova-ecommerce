@@ -103,13 +103,6 @@ export function ProductCard({ product, onAddToCart, priority = false }: ProductC
               transition: 'transform var(--transition-slow)',
             }}
             className="group-hover:scale-105"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              if (target.src !== product.thumbnail && target.src !== 'https://placehold.co/800') {
-                 target.src = product.thumbnail || 'https://placehold.co/800';
-                 target.srcset = '';
-              }
-            }}
           />
         </div>
       </Link>
