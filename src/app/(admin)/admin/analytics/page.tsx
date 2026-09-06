@@ -3,6 +3,7 @@ import { prisma } from '@/Backend/database/prisma';
 import { verifySession } from '@/Backend/auth/session';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import RevenueChart from './RevenueChart';
 
 export default async function AnalyticsPage(props: { searchParams: Promise<{ range?: string }> }) {
   // Auth check — only ADMIN can view analytics
@@ -149,24 +150,7 @@ export default async function AnalyticsPage(props: { searchParams: Promise<{ ran
           </div>
 
           <div style={{ padding: 'var(--space-lg)', backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)' }}>
-            <h3 style={{ fontSize: 'var(--text-base-size)', fontWeight: 600, marginBottom: 'var(--space-lg)' }}>Biểu đồ doanh thu ({days} ngày)</h3>
-            {sortedDates.length === 0 ? (
-              <div style={{ color: 'var(--color-ink-muted-80)', textAlign: 'center', padding: 'var(--space-xl) 0' }}>Chưa có phát sinh giao dịch</div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 200, marginTop: 'var(--space-xl)', overflowX: 'auto' }}>
-                {sortedDates.map(date => {
-                  const heightPct = (revenueByDate[date] / maxRevenue) * 100;
-                  return (
-                    <div key={date} style={{ flex: 1, minWidth: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, height: '100%', justifyContent: 'flex-end' }}>
-                      <div 
-                        title={`Ngày ${date}: ${revenueByDate[date].toLocaleString()} ₫ (${ordersByDate[date]} đơn)`}
-                        style={{ width: '100%', backgroundColor: 'var(--color-primary)', height: `${heightPct}%`, borderRadius: '4px 4px 0 0', minHeight: 4 }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <RevenueChart orders={ordersInRange.map(o => ({ total: o.total, dateStr: o.createdAt.toISOString() }))} days={days} />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-lg)' }}>
