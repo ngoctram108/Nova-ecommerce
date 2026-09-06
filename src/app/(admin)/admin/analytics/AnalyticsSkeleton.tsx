@@ -1,27 +1,8 @@
 import React from 'react';
 
-export default function AnalyticsLoading() {
+export default function AnalyticsSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ fontSize: 'var(--text-lead-size)', fontWeight: 600 }}>Analytics</h2>
-        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-          {[7, 30, 90, 365].map(d => (
-            <div 
-              key={d} 
-              style={{
-                width: 70, height: 36,
-                borderRadius: 'var(--rounded-md)',
-                backgroundColor: '#fff',
-                border: '1px solid var(--color-hairline)',
-                animation: 'pulse 1.5s ease-in-out infinite'
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       {/* 4 Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-lg)' }}>
         {[1, 2, 3, 4].map(i => (
@@ -52,12 +33,15 @@ export default function AnalyticsLoading() {
           backgroundColor: '#fff', 
           borderRadius: 'var(--rounded-lg)', 
           border: '1px solid var(--color-hairline)',
-          height: 320,
+          height: 380,
           display: 'flex',
           flexDirection: 'column'
         }}
       >
-        <div style={{ height: 24, width: 200, backgroundColor: 'var(--color-surface-pearl)', borderRadius: 4, marginBottom: 'var(--space-xl)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-xl)' }}>
+          <div style={{ height: 24, width: 200, backgroundColor: 'var(--color-surface-pearl)', borderRadius: 4, animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div style={{ height: 28, width: 140, backgroundColor: 'var(--color-surface-pearl)', borderRadius: 4, animation: 'pulse 1.5s ease-in-out infinite' }} />
+        </div>
         <div style={{ flex: 1, backgroundColor: 'var(--color-surface-pearl)', borderRadius: '4px 4px 0 0', opacity: 0.5, animation: 'pulse 1.5s ease-in-out infinite' }} />
       </div>
 
