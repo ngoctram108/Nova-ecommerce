@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Search, Image as ImageIcon, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { X, Search, Image as ImageIcon, Plus, Trash2, CheckCircle2, FolderUp } from 'lucide-react';
 import { Button } from '@/Frontend/components/ui';
 import { useToast } from '@/Frontend/components/ui/Toast';
 
@@ -15,6 +15,7 @@ interface ProductImage {
   url: string;
   alt: string;
   source: string;
+  file?: File;
 }
 
 interface VariantInput {
@@ -118,6 +119,26 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
     if (mainImageIndex >= newImages.length) setMainImageIndex(0);
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    // Validation
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showError('Chỉ hỗ trợ file JPG, PNG, WEBP');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Kích thước file không được vượt quá 5MB');
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setImages([...images, { url: previewUrl, alt: file.name, source: 'local', file }]);
+    e.target.value = ''; // Reset input
+  };
+
   const addVariant = () => {
     const baseSku = slug ? `${slug.toUpperCase()}-${variants.length + 1}` : `SKU-${variants.length + 1}`;
     setVariants([...variants, { colorName: '', colorHex: '#000000', size: '', sku: baseSku, stock: '0', price: '', lowStockThreshold: '5' }]);
@@ -192,7 +213,33 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
       });
       const uniqueSizes = Array.from(new Set(variants.map(v => v.size)));
 
-      const mainImage = images.length > 0 ? images[mainImageIndex] : null;
+      const updatedImages = [];
+      for (const img of images) {
+        if (img.file) {
+          const formData = new FormData();
+          formData.append('file', img.file);
+          
+          const uploadRes = await fetch('/api/admin/products/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const uploadResult = await uploadRes.json();
+          
+          if (uploadResult.success && uploadResult.data) {
+            updatedImages.push({ 
+              url: uploadResult.data.url, 
+              alt: img.alt, 
+              source: 'upload' 
+            });
+          } else {
+            throw new Error(uploadResult.error || `Tải ảnh ${img.alt} thất bại`);
+          }
+        } else {
+          updatedImages.push(img);
+        }
+      }
+
+      const mainImage = updatedImages.length > 0 ? updatedImages[mainImageIndex] : null;
 
       const payload = {
         name,
@@ -204,7 +251,7 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
         categorySlug,
         subcategorySlug: subcategorySlug || null,
         thumbnail: mainImage ? mainImage.url : 'https://placehold.co/800',
-        images: images,
+        images: updatedImages,
         imageUrl: mainImage ? mainImage.url : null,
         imageAlt: mainImage ? mainImage.alt : null,
         imageSourceUrl: mainImage ? mainImage.source : null,
@@ -227,8 +274,8 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
       } else {
         showError(data.error || 'Không thể tạo sản phẩm');
       }
-    } catch (e) {
-      showError('Lỗi kết nối hoặc hệ thống');
+    } catch (e: any) {
+      showError(e.message || 'Lỗi kết nối hoặc hệ thống');
     } finally {
       setSaving(false);
     }
@@ -344,6 +391,24 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
               <Button variant="outline" onClick={handleSearchImage} loading={searchingImage}>
                 <Search size={16} style={{ marginRight: 6 }} /> Tìm ảnh tự động
               </Button>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 14, color: 'var(--color-ink-muted-80)' }}>Hoặc</span>
+              <label style={{
+                display: 'inline-flex', alignItems: 'center', padding: '0 16px', height: 40,
+                border: '1px solid var(--color-hairline)', borderRadius: 'var(--rounded-full)',
+                backgroundColor: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                transition: 'all 0.2s'
+              }} className="hover:bg-gray-50">
+                <FolderUp size={16} style={{ marginRight: 6 }} /> Tải ảnh từ máy tính
+                <input 
+                  type="file" 
+                  accept="image/jpeg, image/png, image/webp" 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileSelect}
+                />
+              </label>
             </div>
 
             {images.length > 0 && (

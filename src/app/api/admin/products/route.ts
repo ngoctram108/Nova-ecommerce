@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifySession } from '@/Backend/auth/session';
 import { prisma } from '@/Backend/database/prisma';
 
@@ -200,6 +201,8 @@ export async function POST(request: NextRequest) {
       return newProduct;
     });
 
+    revalidatePath('/products');
+    revalidatePath('/admin/products');
     return NextResponse.json({ success: true, data: product }, { status: 201 });
   } catch (error: any) {
     console.error('Admin Products POST error:', error);

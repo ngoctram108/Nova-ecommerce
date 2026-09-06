@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "google-img-scrap": "^1.2.1",
     "jose": "^6.2.10",

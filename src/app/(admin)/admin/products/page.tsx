@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Button, Input } from '@/Frontend/components/ui';
 import { useToast } from '@/Frontend/components/ui/Toast';
-import { Search, Plus, Edit3, Trash2, ChevronDown, X } from 'lucide-react';
+import { Search, Plus, Edit3, Trash2, ChevronDown, X, FolderUp } from 'lucide-react';
 import CreateProductModal from '@/Frontend/components/admin/CreateProductModal';
 
 interface ProductRow {
@@ -215,12 +215,63 @@ export default function AdminProducts() {
     });
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    // Validation
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      showError('Chỉ hỗ trợ file JPG, PNG, WEBP');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Kích thước file không được vượt quá 5MB');
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setEditForm(prev => ({
+      ...prev,
+      images: [...(prev.images || []), { url: previewUrl, alt: file.name, source: 'local', file }]
+    }));
+    e.target.value = ''; // Reset input
+  };
+
   const handleSave = async () => {
     if (!editingProduct) return;
     setSaving(true);
     try {
       const images = editForm.images || [];
-      const mainImage = images.length > 0 ? images[editForm.mainImageIndex || 0] : null;
+      const updatedImages = [];
+
+      // Upload local files first
+      for (const img of images) {
+        if (img.file) {
+          const formData = new FormData();
+          formData.append('file', img.file);
+          
+          const uploadRes = await fetch('/api/admin/products/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const uploadResult = await uploadRes.json();
+          
+          if (uploadResult.success && uploadResult.data) {
+            updatedImages.push({ 
+              url: uploadResult.data.url, 
+              alt: img.alt, 
+              source: 'upload' 
+            });
+          } else {
+            throw new Error(uploadResult.error || `Tải ảnh ${img.alt} thất bại`);
+          }
+        } else {
+          updatedImages.push(img);
+        }
+      }
+
+      const mainImage = updatedImages.length > 0 ? updatedImages[editForm.mainImageIndex || 0] : null;
 
       const res = await fetch(`/api/admin/products/${editingProduct.id}`, {
         method: 'PUT',
@@ -232,7 +283,7 @@ export default function AdminProducts() {
           compareAt: editForm.compareAt ? parseFloat(editForm.compareAt) : null,
           badge: editForm.badge || null,
           featured: editForm.featured,
-          images: images,
+          images: updatedImages,
           imageUrl: mainImage ? mainImage.url : null,
           thumbnail: mainImage ? mainImage.url : 'https://placehold.co/800',
           imageAlt: mainImage ? mainImage.alt : null,
@@ -247,8 +298,8 @@ export default function AdminProducts() {
       } else {
         showError(data.error || 'Cập nhật thất bại');
       }
-    } catch {
-      showError('Lỗi kết nối');
+    } catch (err: any) {
+      showError(err.message || 'Lỗi kết nối');
     } finally {
       setSaving(false);
     }
@@ -559,6 +610,24 @@ export default function AdminProducts() {
                     <Button variant="outline" onClick={handleSearchEditImage} loading={searchingImage}>
                       <Search size={16} style={{ marginRight: 6 }} /> Tìm ảnh tự động
                     </Button>
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 14, color: 'var(--color-ink-muted-80)' }}>Hoặc</span>
+                    <label style={{
+                      display: 'inline-flex', alignItems: 'center', padding: '0 16px', height: 40,
+                      border: '1px solid var(--color-hairline)', borderRadius: 'var(--rounded-full)',
+                      backgroundColor: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }} className="hover:bg-gray-50">
+                      <FolderUp size={16} style={{ marginRight: 6 }} /> Tải ảnh từ máy tính
+                      <input 
+                        type="file" 
+                        accept="image/jpeg, image/png, image/webp" 
+                        style={{ display: 'none' }} 
+                        onChange={handleFileSelect}
+                      />
+                    </label>
                   </div>
 
                   {(editForm.images || []).length > 0 ? (
