@@ -65,7 +65,7 @@ export default function AdminDashboard() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
         {/* Skeleton cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-lg)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 'var(--space-lg)' }}>
           {[1,2,3,4].map(i => (
             <div key={i} style={{ height: 120, borderRadius: 'var(--rounded-lg)', backgroundColor: '#fff', border: '1px solid var(--color-hairline)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           ))}
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}>
       {/* Main Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-lg)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 'var(--space-lg)' }}>
         <MetricCard
           icon={<TrendingUp size={22} />}
           label="Tổng doanh thu"
@@ -111,38 +111,38 @@ export default function AdminDashboard() {
       </div>
 
       {/* Inventory alerts */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-lg)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 'var(--space-lg)' }}>
         <div style={{ padding: 'var(--space-lg)', backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(42,157,143,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(42,157,143,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Archive size={20} color="var(--color-success)" />
           </div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, color: 'var(--color-ink-muted-80)' }}>Tổng tồn kho</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{stats.totalStock.toLocaleString()}</div>
+            <div style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 700, overflowWrap: 'break-word', wordBreak: 'break-word', lineHeight: 1.2 }}>{stats.totalStock.toLocaleString()}</div>
           </div>
         </div>
         <div style={{ padding: 'var(--space-lg)', backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(255,160,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(255,160,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <AlertTriangle size={20} color="var(--color-warning)" />
           </div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, color: 'var(--color-ink-muted-80)' }}>Sắp hết hàng</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-warning)' }}>{stats.lowStockCount}</div>
+            <div style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 700, color: 'var(--color-warning)', overflowWrap: 'break-word', wordBreak: 'break-word', lineHeight: 1.2 }}>{stats.lowStockCount}</div>
           </div>
         </div>
         <div style={{ padding: 'var(--space-lg)', backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(230,57,70,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 44, height: 44, borderRadius: 'var(--rounded-sm)', backgroundColor: 'rgba(230,57,70,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <XCircle size={20} color="var(--color-danger)" />
           </div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, color: 'var(--color-ink-muted-80)' }}>Hết hàng</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-danger)' }}>{stats.outOfStockCount}</div>
+            <div style={{ fontSize: 'clamp(18px, 4vw, 22px)', fontWeight: 700, color: 'var(--color-danger)', overflowWrap: 'break-word', wordBreak: 'break-word', lineHeight: 1.2 }}>{stats.outOfStockCount}</div>
           </div>
         </div>
       </div>
 
       {/* Two columns: Recent Orders + Top Products */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: 'var(--space-lg)' }}>
         {/* Recent Orders */}
         <div style={{ backgroundColor: '#fff', borderRadius: 'var(--rounded-lg)', border: '1px solid var(--color-hairline)', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-divider-soft)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -235,9 +235,18 @@ function MetricCard({ icon, label, value, accent }: { icon: React.ReactNode; lab
       }}>
         {icon}
       </div>
-      <div>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, color: 'var(--color-ink-muted-80)', marginBottom: 4 }}>{label}</div>
-        <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.5px' }}>{value}</div>
+        <div style={{ 
+          fontSize: 'clamp(18px, 4.5vw, 22px)', 
+          fontWeight: 700, 
+          letterSpacing: '-0.5px',
+          overflowWrap: 'break-word',
+          wordBreak: 'break-word',
+          lineHeight: 1.2
+        }}>
+          {value}
+        </div>
       </div>
     </div>
   );
