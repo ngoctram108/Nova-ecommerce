@@ -38,8 +38,8 @@ export default function ProductGallery({
           alt={currentImageAlt}
           fill
           priority
-          sizes="(max-width: 768px) 100vw, 55vw"
-          style={{ objectFit: 'cover' }}
+          sizes="(max-width: 768px) 100vw, 50vw"
+          style={{ objectFit: 'contain' }}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             if (target.src !== product.thumbnail && target.src !== 'https://placehold.co/800') {

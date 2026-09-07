@@ -12,14 +12,12 @@
   background-color: var(--color-canvas-parchment);
   width: 100%;
   aspect-ratio: 3/4; /* Better for fashion photography */
-  max-height: 70vh; /* Prevent it from being taller than the screen */
+  max-height: 80vh; /* Prevent it from being taller than the screen */
 }
 
 @media (min-width: 1024px) {
   .mainImageWrapper {
-    height: 600px;
-    max-height: none;
-    aspect-ratio: auto;
+    max-height: calc(100vh - 120px);
   }
 }
 

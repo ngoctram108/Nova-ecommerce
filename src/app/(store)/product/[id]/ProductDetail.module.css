@@ -7,13 +7,20 @@
 
 @media (min-width: 1024px) {
   .productDetailContainer {
-    grid-template-columns: 55% 1fr; /* Gallery takes 55%, Info takes 1fr (approx 45%) */
+    grid-template-columns: 1fr 1fr; /* 50% / 50% for a balanced layout */
     gap: 48px;
   }
 }
 
 .galleryColumn {
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .galleryColumn {
+    position: sticky;
+    top: calc(var(--global-nav-height) + 32px);
+  }
 }
 
 .infoColumn {
@@ -23,21 +30,6 @@
   width: 100%;
 }
 
-@media (min-width: 1024px) {
-  .infoColumn {
-    position: sticky;
-    top: calc(var(--global-nav-height) + 32px); /* Sticky under the header */
-    max-height: calc(100vh - var(--global-nav-height) - 64px);
-    overflow-y: auto;
-    /* hide scrollbar for cleaner look */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 32px;
-  }
-  .infoColumn::-webkit-scrollbar {
-    display: none;
-  }
-}
 
 .brandLabel {
   font-size: var(--text-caption-strong-size);
