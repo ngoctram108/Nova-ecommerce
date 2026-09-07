@@ -108,7 +108,7 @@ export default async function ProductDetailPage({
       </div>
 
       {/* Reviews Section */}
-      <div style={{ marginTop: 'var(--space-xxxl)' }}>
+      <div style={{ marginTop: 40 }}>
         <h2 style={{ fontSize: 'var(--text-display-sm-size)', marginBottom: 'var(--space-xl)', borderBottom: '1px solid var(--color-hairline)', paddingBottom: 'var(--space-sm)' }}>
           Đánh giá từ khách hàng ({product.reviews?.length || 0})
         </h2>
