@@ -252,6 +252,10 @@ export async function getProductDetails(id: string) {
         sizes: true,
         inventory: true,
         variants: true,
+        reviews: {
+          include: { user: { select: { name: true } } },
+          orderBy: { createdAt: 'desc' }
+        },
       }
     });
 
@@ -282,6 +286,16 @@ export async function getProductDetails(id: string) {
         price: v.price || p.price,
         stock: p.inventory.find(i => i.variantId === v.id)?.stockQuantity || 0
       })),
+      reviews: (p as any).reviews?.map((r: any) => ({
+        id: r.id,
+        productId: r.productId,
+        author: r.user?.name || 'Customer',
+        rating: r.rating,
+        title: r.title,
+        content: r.content,
+        date: r.createdAt.toISOString(),
+        verified: r.verified
+      })) || [],
       stock: p.inventory.reduce((sum, inv) => sum + inv.stockQuantity, 0)
     };
   } catch (e) {

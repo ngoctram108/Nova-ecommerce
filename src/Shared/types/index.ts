@@ -59,6 +59,7 @@ export interface Product {
   colors?: ProductColor[];
   sizes?: string[];
   variants?: ProductVariant[];
+  reviews?: ProductReview[];
   specs: Record<string, string>;
   featured: boolean;
   createdAt: string;
