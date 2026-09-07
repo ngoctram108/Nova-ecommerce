@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input, Button } from '@/Frontend/components/ui';
+import { useAuth } from '@/Frontend/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@nora.com');
@@ -11,6 +12,17 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, login } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/account');
+      }
+    }
+  }, [user, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,24 +30,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await login(email, password);
 
-      if (res.ok) {
-        const data = await res.json();
+      if (res.success && res.user) {
         // Redirect based on role
-        if (data.user.role === 'ADMIN') {
+        if (res.user.role === 'ADMIN') {
           router.push('/admin');
         } else {
           router.push('/account');
         }
         router.refresh();
       } else {
-        const data = await res.json();
-        setError(data.error || 'Login failed');
+        setError(res.error || 'Login failed');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

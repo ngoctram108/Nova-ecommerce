@@ -7,7 +7,7 @@ import { getUserById, validateCredentials } from '@/Backend/database/data/users'
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, pass: string) => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
 }
 
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       if (!res.ok) return { success: false, error: data.error || 'Login failed' };
       setUser(data.user);
-      return { success: true };
+      return { success: true, user: data.user };
     } catch (error) {
       console.error(error);
       return { success: false, error: 'Network error' };
