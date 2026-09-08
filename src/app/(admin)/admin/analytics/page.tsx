@@ -11,34 +11,50 @@ async function AnalyticsData({ range, days }: { range: string; days: number }) {
   startDate.setDate(startDate.getDate() - days);
   startDate.setHours(0, 0, 0, 0);
 
+  const orderWhere = {
+    createdAt: { gte: startDate },
+    status: { not: 'CANCELLED' }
+  };
+
+  const orderItemWhere = {
+    order: orderWhere
+  };
+
   const [
     totalOrdersCount,
     totalCustomersCount,
     ordersInRange,
-    orderItemsInRange,
+    revenueAgg,
+    productsSoldAgg,
+    topProductsGroup,
+    categorySales,
     inventoryData
   ] = await Promise.all([
     prisma.order.count(),
     prisma.user.count({ where: { role: 'CUSTOMER' } }),
     prisma.order.findMany({
-      where: {
-        createdAt: { gte: startDate },
-        status: { not: 'CANCELLED' }
-      },
+      where: orderWhere,
       select: { total: true, createdAt: true }
     }),
+    prisma.order.aggregate({
+      where: orderWhere,
+      _sum: { total: true }
+    }),
+    prisma.orderItem.aggregate({
+      where: orderItemWhere,
+      _sum: { quantity: true }
+    }),
+    prisma.orderItem.groupBy({
+      by: ['productId', 'name'],
+      where: orderItemWhere,
+      _sum: { quantity: true },
+      orderBy: { _sum: { quantity: 'desc' } },
+      take: 5
+    }),
     prisma.orderItem.findMany({
-      where: {
-        order: {
-          createdAt: { gte: startDate },
-          status: { not: 'CANCELLED' }
-        }
-      },
+      where: orderItemWhere,
       select: {
-        quantity: true,
         total: true,
-        productId: true,
-        name: true,
         product: { select: { categorySlug: true } }
       }
     }),
@@ -47,22 +63,16 @@ async function AnalyticsData({ range, days }: { range: string; days: number }) {
     })
   ]);
 
-  const totalRevenue = ordersInRange.reduce((sum, order) => sum + order.total, 0);
-  const totalProductsSold = orderItemsInRange.reduce((sum, item) => sum + item.quantity, 0);
+  const totalRevenue = revenueAgg._sum.total || 0;
+  const totalProductsSold = productsSoldAgg._sum.quantity || 0;
 
-  const productSales: Record<string, { name: string; quantity: number }> = {};
-  orderItemsInRange.forEach(item => {
-    if (!productSales[item.productId]) {
-      productSales[item.productId] = { name: item.name, quantity: 0 };
-    }
-    productSales[item.productId].quantity += item.quantity;
-  });
-  const topProducts = Object.values(productSales)
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5);
+  const topProducts = topProductsGroup.map(g => ({
+    name: g.name,
+    quantity: g._sum.quantity || 0
+  }));
 
   const revenueByCategory: Record<string, number> = {};
-  orderItemsInRange.forEach(item => {
+  categorySales.forEach(item => {
     const cat = item.product?.categorySlug || 'Khác';
     revenueByCategory[cat] = (revenueByCategory[cat] || 0) + item.total;
   });

@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getProductDetails } from '@/Backend/services/catalog';
+import { getProductDetails, getProductMeta } from '@/Backend/services/catalog';
 import ProductGallery from '@/Frontend/components/product/ProductGallery';
 import AddToCartForm from '@/Frontend/components/product/AddToCartForm';
 import ProductReviewsSection from './ProductReviewsSection';
@@ -16,15 +16,15 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = await getProductDetails(id);
+  const productMeta = await getProductMeta(id);
   
-  if (!product) {
+  if (!productMeta) {
     return { title: 'Product Not Found | NORA' };
   }
   
   return {
-    title: `${product.name} | NORA`,
-    description: product.description,
+    title: `${productMeta.name} | NORA`,
+    description: productMeta.description,
   };
 }
 

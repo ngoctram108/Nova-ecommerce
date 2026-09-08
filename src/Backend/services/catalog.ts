@@ -217,32 +217,27 @@ export async function queryProducts(filters: ProductFilters = {}) {
       filters: availableFilters,
     };
   } catch (e) {
-    console.warn("Prisma queryProducts failed, falling back to mock data", e);
-    
-    let data = [...mockProducts];
-    if (filters.category) data = data.filter(p => p.categorySlug === filters.category);
-    if (filters.badge) data = data.filter(p => p.badge === filters.badge);
-    if (filters.sort === 'newest') data.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    else if (filters.sort === 'price-asc') data.sort((a, b) => a.price - b.price);
-    else if (filters.sort === 'price-desc') data.sort((a, b) => b.price - a.price);
-    else if (filters.sort === 'rating') data.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-
-    const page = filters.page ?? 1;
-    const limit = filters.limit ?? 24;
-    const total = data.length;
-    
+    console.error("Prisma queryProducts failed. Ensure database is running.", e);
+    // Remove heavy JS fallback. Return empty to trigger Error boundary or gracefully degrade.
     return {
-      data: data.slice((page - 1) * limit, page * limit),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      data: [],
+      pagination: { page: filters.page ?? 1, limit: filters.limit ?? 24, total: 0, totalPages: 0 },
       filters: { categories: [], subcategories: [], brands: [], colors: [], sizes: [], priceRange: { min: 0, max: 10000000 } }
     };
   }
 }
+
+export const getProductMeta = cache(async (id: string) => {
+  try {
+    const p = await prisma.product.findUnique({
+      where: { id },
+      select: { name: true, description: true }
+    });
+    return p;
+  } catch (e) {
+    return null;
+  }
+});
 
 export const getProductDetails = cache(async (id: string) => {
   try {
