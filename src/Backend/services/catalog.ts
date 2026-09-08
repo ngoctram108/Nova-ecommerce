@@ -3,6 +3,7 @@ import { prisma } from '@/Backend/database/prisma';
 import { Prisma } from '@prisma/client';
 import { products as mockProducts } from '@/Backend/database/data/products';
 import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 
 /* ── Available filter values ── */
 
@@ -243,7 +244,7 @@ export async function queryProducts(filters: ProductFilters = {}) {
   }
 }
 
-export async function getProductDetails(id: string) {
+export const getProductDetails = cache(async (id: string) => {
   try {
     const p = await prisma.product.findUnique({
       where: { id },
@@ -254,19 +255,6 @@ export async function getProductDetails(id: string) {
         variants: true,
       }
     });
-
-    if (!p) return null;
-
-    let reviewsData: any[] = [];
-    try {
-      reviewsData = await prisma.review.findMany({
-        where: { productId: id },
-        include: { user: { select: { name: true } } },
-        orderBy: { createdAt: 'desc' }
-      });
-    } catch (reviewError) {
-      console.warn("Failed to fetch reviews, continuing without them", reviewError);
-    }
 
     if (!p) return null;
 
@@ -295,21 +283,35 @@ export async function getProductDetails(id: string) {
         price: v.price || p.price,
         stock: p.inventory.find(i => i.variantId === v.id)?.stockQuantity || 0
       })),
-      reviews: reviewsData.map((r: any) => ({
-        id: r.id,
-        productId: r.productId,
-        author: r.user?.name || 'Customer',
-        rating: r.rating,
-        comment: r.comment,
-        date: r.createdAt.toISOString(),
-        verified: r.verified
-      })),
       stock: p.inventory.reduce((sum, inv) => sum + inv.stockQuantity, 0)
     };
   } catch (e) {
     console.warn("Prisma getProductDetails failed, falling back to mock data", e);
     const mockProduct = mockProducts.find((p: any) => p.id === id || p.slug === id);
-    return mockProduct || null;
+    return mockProduct ? { ...mockProduct, reviews: undefined } : null;
   }
-}
+});
+
+export const getProductReviews = cache(async (id: string) => {
+  try {
+    const reviewsData = await prisma.review.findMany({
+      where: { productId: id },
+      include: { user: { select: { name: true } } },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return reviewsData.map((r: any) => ({
+      id: r.id,
+      productId: r.productId,
+      author: r.user?.name || 'Customer',
+      rating: r.rating,
+      comment: r.comment,
+      date: r.createdAt.toISOString(),
+      verified: r.verified
+    }));
+  } catch (reviewError) {
+    console.warn("Failed to fetch reviews, continuing without them", reviewError);
+    return [];
+  }
+});
 
