@@ -6,6 +6,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { prisma } from '@/Backend/database/prisma';
 import { StatusBadge } from '@/Frontend/components/ui';
 import OrderTimeline from '@/Frontend/components/store/OrderTimeline';
+import OrderItemsList from '@/Frontend/components/store/OrderItemsList';
 
 export default async function OrderSuccessPage({
   params,
@@ -15,7 +16,7 @@ export default async function OrderSuccessPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, statusHistory: { orderBy: { createdAt: 'desc' } } }
+    include: { items: { include: { reviews: true } }, statusHistory: { orderBy: { createdAt: 'desc' } } }
   });
 
   if (!order) {
@@ -106,35 +107,7 @@ export default async function OrderSuccessPage({
           <hr style={{ border: 'none', borderTop: '1px solid var(--color-divider-soft)' }} />
 
           {/* Items */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h3 style={{ fontSize: 'var(--text-body-strong-size)', fontWeight: 600 }}>
-              Sản phẩm ({order.items.length})
-            </h3>
-            {order.items.map((item, index) => (
-              <div key={index} style={{ display: 'flex', gap: 12 }}>
-                <div
-                  style={{
-                    position: 'relative',
-                    width: 64,
-                    height: 64,
-                    borderRadius: 'var(--rounded-xs)',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                    backgroundColor: 'var(--color-canvas-parchment)',
-                  }}
-                >
-                  <Image src={item.imageUrl || item.thumbnail} alt={item.imageAlt || item.name} fill style={{ objectFit: 'cover' }} />
-                </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <div style={{ fontWeight: 600 }}>{item.name}</div>
-                  {item.variantName && <div style={{ fontSize: 'var(--text-fine-print-size)', color: 'var(--color-ink-muted-80)' }}>{item.variantName}</div>}
-                  <div style={{ fontSize: 'var(--text-caption-size)' }}>
-                    {item.quantity} x {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.unitPrice)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <OrderItemsList items={order.items as any} orderStatus={order.status} />
 
           <hr style={{ border: 'none', borderTop: '1px solid var(--color-divider-soft)' }} />
 

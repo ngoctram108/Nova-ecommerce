@@ -25,8 +25,7 @@ export interface ProductReview {
   productId: string;
   author: string;
   rating: number;
-  title: string;
-  content: string;
+  comment: string;
   date: string;
   verified: boolean;
 }

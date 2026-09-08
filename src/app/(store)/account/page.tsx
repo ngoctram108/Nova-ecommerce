@@ -7,6 +7,7 @@ import { Package, Heart, User as UserIcon, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import ReviewModal from '@/Frontend/components/store/ReviewModal';
 
 export default function AccountPage() {
   const { user, isLoading, login, logout } = useAuth();
@@ -28,21 +29,38 @@ export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'wishlist' | 'security'>('orders');
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [ordersLoaded, setOrdersLoaded] = useState(false);
+  
+  // Review state
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewProductId, setReviewProductId] = useState('');
+  const [reviewOrderItemId, setReviewOrderItemId] = useState('');
+  const [reviewProductName, setReviewProductName] = useState('');
 
   // Fetch orders
+  const fetchOrders = () => {
+    fetch('/api/orders')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setUserOrders(data);
+        }
+        setOrdersLoaded(true);
+      })
+      .catch(err => console.error(err));
+  };
+
   React.useEffect(() => {
     if (user && activeTab === 'orders' && !ordersLoaded) {
-      fetch('/api/orders')
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setUserOrders(data);
-          }
-          setOrdersLoaded(true);
-        })
-        .catch(err => console.error(err));
+      fetchOrders();
     }
   }, [user, activeTab, ordersLoaded]);
+
+  const openReviewModal = (productId: string, orderItemId: string, productName: string) => {
+    setReviewProductId(productId);
+    setReviewOrderItemId(orderItemId);
+    setReviewProductName(productName);
+    setReviewModalOpen(true);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -252,31 +270,51 @@ export default function AccountPage() {
                       </div>
                       
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-                        {order.items.map((item: any, i: number) => (
-                          <div key={i} style={{ display: 'flex', gap: 12 }}>
-                            <div style={{ position: 'relative', width: 48, height: 48, borderRadius: 'var(--rounded-xs)', overflow: 'hidden', flexShrink: 0, backgroundColor: 'var(--color-canvas-parchment)' }}>
-                              <Image 
-                                src={item.imageUrl || item.thumbnail} 
-                                alt={item.imageAlt || item.name} 
-                                fill 
-                                style={{ objectFit: 'cover' }} 
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  if (target.src !== item.thumbnail && target.src !== 'https://placehold.co/800') {
-                                     target.src = item.thumbnail || 'https://placehold.co/800';
-                                     target.srcset = '';
-                                  }
-                                }}
-                              />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: 'var(--text-caption-strong-size)', fontWeight: 600 }}>{item.name}</div>
-                              <div style={{ fontSize: 'var(--text-fine-print-size)', color: 'var(--color-ink-muted-80)' }}>
-                                {item.variant} | SL: {item.quantity}
+                        {order.items.map((item: any, i: number) => {
+                          const hasReviewed = item.reviews && item.reviews.length > 0;
+                          return (
+                            <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                              <div style={{ position: 'relative', width: 48, height: 48, borderRadius: 'var(--rounded-xs)', overflow: 'hidden', flexShrink: 0, backgroundColor: 'var(--color-canvas-parchment)' }}>
+                                <Image 
+                                  src={item.imageUrl || item.thumbnail} 
+                                  alt={item.imageAlt || item.name} 
+                                  fill 
+                                  style={{ objectFit: 'cover' }} 
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (target.src !== item.thumbnail && target.src !== 'https://placehold.co/800') {
+                                       target.src = item.thumbnail || 'https://placehold.co/800';
+                                       target.srcset = '';
+                                    }
+                                  }}
+                                />
                               </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 'var(--text-caption-strong-size)', fontWeight: 600 }}>{item.name}</div>
+                                <div style={{ fontSize: 'var(--text-fine-print-size)', color: 'var(--color-ink-muted-80)' }}>
+                                  {item.variantName || item.variant} | SL: {item.quantity}
+                                </div>
+                              </div>
+                              {order.status === 'DELIVERED' && (
+                                <div>
+                                  {hasReviewed ? (
+                                    <span style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-success)', fontWeight: 500, padding: '4px 8px', backgroundColor: 'rgba(0, 200, 83, 0.1)', borderRadius: 4 }}>
+                                      Đã đánh giá
+                                    </span>
+                                  ) : (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      onClick={() => openReviewModal(item.productId, item.id, item.name)}
+                                    >
+                                      Đánh giá sản phẩm
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTop: '1px solid var(--color-divider-soft)' }}>
@@ -335,6 +373,14 @@ export default function AccountPage() {
           )}
         </div>
       </div>
+      <ReviewModal
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        productId={reviewProductId}
+        orderItemId={reviewOrderItemId}
+        productName={reviewProductName}
+        onSuccess={() => fetchOrders()}
+      />
     </div>
   );
 }

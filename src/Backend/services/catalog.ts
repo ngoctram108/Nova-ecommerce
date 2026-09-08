@@ -252,12 +252,21 @@ export async function getProductDetails(id: string) {
         sizes: true,
         inventory: true,
         variants: true,
-        reviews: {
-          include: { user: { select: { name: true } } },
-          orderBy: { createdAt: 'desc' }
-        },
       }
     });
+
+    if (!p) return null;
+
+    let reviewsData: any[] = [];
+    try {
+      reviewsData = await prisma.review.findMany({
+        where: { productId: id },
+        include: { user: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (reviewError) {
+      console.warn("Failed to fetch reviews, continuing without them", reviewError);
+    }
 
     if (!p) return null;
 
@@ -286,16 +295,15 @@ export async function getProductDetails(id: string) {
         price: v.price || p.price,
         stock: p.inventory.find(i => i.variantId === v.id)?.stockQuantity || 0
       })),
-      reviews: (p as any).reviews?.map((r: any) => ({
+      reviews: reviewsData.map((r: any) => ({
         id: r.id,
         productId: r.productId,
         author: r.user?.name || 'Customer',
         rating: r.rating,
-        title: r.title,
-        content: r.content,
+        comment: r.comment,
         date: r.createdAt.toISOString(),
         verified: r.verified
-      })) || [],
+      })),
       stock: p.inventory.reduce((sum, inv) => sum + inv.stockQuantity, 0)
     };
   } catch (e) {

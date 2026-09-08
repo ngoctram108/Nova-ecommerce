@@ -65,9 +65,15 @@ export default async function ProductDetailPage({
                   {'★'.repeat(5 - Math.floor(product.rating))}
                 </span>
               </div>
-              <span className={styles.reviewCount}>
-                ({product.reviewCount} đánh giá)
-              </span>
+              {product.reviewCount > 0 ? (
+                <span className={styles.reviewCount}>
+                  {product.rating.toFixed(1)}/5 ({product.reviewCount} đánh giá)
+                </span>
+              ) : (
+                <span className={styles.reviewCount}>
+                  (Chưa có đánh giá)
+                </span>
+              )}
             </div>
           </div>
 
@@ -132,8 +138,7 @@ export default async function ProductDetailPage({
                     {new Intl.DateTimeFormat('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(review.date))}
                   </div>
                 </div>
-                {review.title && <div style={{ fontWeight: 600, marginTop: 4 }}>{review.title}</div>}
-                <p style={{ color: 'var(--color-ink-muted-80)', lineHeight: 1.5, margin: 0 }}>{review.content}</p>
+                <p style={{ color: 'var(--color-ink-muted-80)', lineHeight: 1.5, margin: 0, whiteSpace: 'pre-line' }}>{review.comment}</p>
               </div>
             ))}
           </div>
