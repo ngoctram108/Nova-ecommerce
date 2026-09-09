@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { DollarSign, Package, ShoppingBag, Users, BarChart3, LogOut, Settings, Boxes } from 'lucide-react';
+import { DollarSign, Package, ShoppingBag, Users, BarChart3, LogOut, Settings, Boxes, MessageSquare } from 'lucide-react';
 import { Providers } from '@/Frontend/contexts/Providers';
 
 export default function AdminLayout({
@@ -19,6 +19,7 @@ export default function AdminLayout({
     { name: 'Inventory', href: '/admin/inventory', icon: Boxes },
     { name: 'Orders', href: '/admin/orders', icon: Package },
     { name: 'Customers', href: '/admin/customers', icon: Users },
+    { name: 'Reviews', href: '/admin/reviews', icon: MessageSquare },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   ];
 

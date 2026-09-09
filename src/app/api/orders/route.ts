@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     const { prisma } = await import('@/Backend/database/prisma');
     const orders = await prisma.order.findMany({
       where: { userId: session.userId },
-      include: { items: { include: { reviews: { select: { id: true } } } } },
+      include: { items: { include: { reviews: { select: { id: true, rating: true, comment: true } } } } },
       orderBy: { createdAt: 'desc' }
     });
 

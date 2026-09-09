@@ -16,7 +16,7 @@ interface OrderItem {
   variantName?: string | null;
   quantity: number;
   unitPrice: number;
-  reviews?: any[];
+  reviews?: { id: string; rating: number; comment: string }[];
 }
 
 interface OrderItemsListProps {
@@ -30,11 +30,13 @@ export default function OrderItemsList({ items, orderStatus }: OrderItemsListPro
   const [reviewProductId, setReviewProductId] = useState('');
   const [reviewOrderItemId, setReviewOrderItemId] = useState('');
   const [reviewProductName, setReviewProductName] = useState('');
+  const [reviewExisting, setReviewExisting] = useState<{ id: string; rating: number; comment: string } | null>(null);
 
-  const openReviewModal = (productId: string, orderItemId: string, productName: string) => {
+  const openReviewModal = (productId: string, orderItemId: string, productName: string, existing?: { id: string; rating: number; comment: string } | null) => {
     setReviewProductId(productId);
     setReviewOrderItemId(orderItemId);
     setReviewProductName(productName);
+    setReviewExisting(existing || null);
     setReviewModalOpen(true);
   };
 
@@ -71,9 +73,14 @@ export default function OrderItemsList({ items, orderStatus }: OrderItemsListPro
               {orderStatus === 'DELIVERED' && (
                 <div>
                   {hasReviewed ? (
-                    <span style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-success)', fontWeight: 500, padding: '4px 8px', backgroundColor: 'rgba(0, 200, 83, 0.1)', borderRadius: 4 }}>
-                      Đã đánh giá
-                    </span>
+                    <button 
+                      onClick={() => openReviewModal(item.productId, item.id, item.name, item.reviews![0])}
+                      style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-success)', fontWeight: 500, padding: '4px 8px', backgroundColor: 'rgba(0, 200, 83, 0.1)', borderRadius: 4, border: 'none', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                      onMouseOver={(e) => (e.currentTarget.style.opacity = '0.7')}
+                      onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
+                    >
+                      ★ Đã đánh giá · Sửa
+                    </button>
                   ) : (
                     <Button 
                       variant="outline" 
@@ -97,6 +104,7 @@ export default function OrderItemsList({ items, orderStatus }: OrderItemsListPro
         orderItemId={reviewOrderItemId}
         productName={reviewProductName}
         onSuccess={() => router.refresh()}
+        existingReview={reviewExisting}
       />
     </>
   );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/Backend/auth/session';
 import { prisma } from '@/Backend/database/prisma';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   try {
@@ -91,6 +92,8 @@ export async function POST(request: NextRequest) {
 
       return review;
     });
+
+    revalidatePath(`/product/${productId}`);
 
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {

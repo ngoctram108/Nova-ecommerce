@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Input } from '@/Frontend/components/ui';
+
+interface ExistingReview {
+  id: string;
+  rating: number;
+  comment: string;
+}
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -10,6 +16,7 @@ interface ReviewModalProps {
   orderItemId: string;
   productName: string;
   onSuccess: () => void;
+  existingReview?: ExistingReview | null;
 }
 
 export default function ReviewModal({
@@ -18,14 +25,30 @@ export default function ReviewModal({
   productId,
   orderItemId,
   productName,
-  onSuccess
+  onSuccess,
+  existingReview
 }: ReviewModalProps) {
+  const isEditMode = !!existingReview;
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (isOpen && existingReview) {
+      setRating(existingReview.rating);
+      setComment(existingReview.comment);
+    } else if (isOpen && !existingReview) {
+      setRating(0);
+      setComment('');
+    }
+    setError('');
+    setSuccessMsg('');
+  }, [isOpen, existingReview]);
 
   if (!isOpen) return null;
 
@@ -41,40 +64,78 @@ export default function ReviewModal({
     setLoading(true);
 
     try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId,
-          orderItemId,
-          rating,
-          comment,
-        }),
-      });
+      let res: Response;
+
+      if (isEditMode) {
+        // PATCH existing review
+        res = await fetch(`/api/reviews/${existingReview.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating, comment }),
+        });
+      } else {
+        // POST new review
+        res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, orderItemId, rating, comment }),
+        });
+      }
 
       const data = await res.json();
 
       if (!res.ok) {
         setError(data.error || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
       } else {
-        setSuccessMsg('Cảm ơn bạn đã đánh giá sản phẩm!');
+        setSuccessMsg(isEditMode ? 'Đã cập nhật đánh giá!' : 'Cảm ơn bạn đã đánh giá sản phẩm!');
         setTimeout(() => {
           onSuccess();
-          onClose();
-          // Reset form
-          setRating(0);
-          setHoverRating(0);
-          setComment('');
-          setSuccessMsg('');
-        }, 1500);
+          handleClose();
+        }, 1200);
       }
     } catch (err) {
       setError('Lỗi kết nối. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!existingReview) return;
+    if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
+
+    setDeleteLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`/api/reviews/${existingReview.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Không thể xóa đánh giá.');
+      } else {
+        setSuccessMsg('Đã xóa đánh giá.');
+        setTimeout(() => {
+          onSuccess();
+          handleClose();
+        }, 1200);
+      }
+    } catch (err) {
+      setError('Lỗi kết nối. Vui lòng thử lại sau.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setRating(0);
+    setHoverRating(0);
+    setComment('');
+    setError('');
+    setSuccessMsg('');
+    onClose();
   };
 
   return (
@@ -99,7 +160,7 @@ export default function ReviewModal({
         position: 'relative'
       }}>
         <button 
-          onClick={onClose}
+          onClick={handleClose}
           style={{
             position: 'absolute',
             top: 16,
@@ -116,7 +177,7 @@ export default function ReviewModal({
         </button>
 
         <h2 style={{ fontSize: 'var(--text-title-size)', marginBottom: 'var(--space-md)' }}>
-          Đánh giá sản phẩm
+          {isEditMode ? 'Chỉnh sửa đánh giá' : 'Đánh giá sản phẩm'}
         </h2>
         
         <div style={{ marginBottom: 'var(--space-lg)', fontWeight: 600 }}>
@@ -140,7 +201,10 @@ export default function ReviewModal({
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(0)}
                     onClick={() => setRating(star)}
-                    style={{ color: star <= (hoverRating || rating) ? '#ffb400' : 'var(--color-hairline)' }}
+                    style={{
+                      color: star <= (hoverRating || rating) ? '#ffb400' : 'var(--color-hairline)',
+                      transition: 'color 0.15s ease',
+                    }}
                   >
                     ★
                   </span>
@@ -175,13 +239,28 @@ export default function ReviewModal({
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
-              <Button variant="outline" type="button" onClick={onClose}>
-                Hủy
-              </Button>
-              <Button variant="primary" type="submit" loading={loading}>
-                Gửi đánh giá
-              </Button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+              <div>
+                {isEditMode && (
+                  <Button 
+                    variant="ghost" 
+                    type="button" 
+                    onClick={handleDelete} 
+                    loading={deleteLoading}
+                    style={{ color: 'var(--color-danger)' }}
+                  >
+                    Xóa đánh giá
+                  </Button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <Button variant="outline" type="button" onClick={handleClose}>
+                  Hủy
+                </Button>
+                <Button variant="primary" type="submit" loading={loading}>
+                  {isEditMode ? 'Cập nhật' : 'Gửi đánh giá'}
+                </Button>
+              </div>
             </div>
           </form>
         )}
