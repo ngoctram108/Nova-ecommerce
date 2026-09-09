@@ -241,20 +241,34 @@ export const getProductMeta = cache(async (id: string) => {
 
 export const getProductDetails = cache(async (id: string) => {
   try {
-    const p = await prisma.product.findUnique({
-      where: { id },
-      include: {
-        colors: true,
-        sizes: true,
-        inventory: true,
-        variants: true,
-      }
-    });
+    // Run product query and review aggregate in parallel for consistency
+    const [p, reviewAgg] = await Promise.all([
+      prisma.product.findUnique({
+        where: { id },
+        include: {
+          colors: true,
+          sizes: true,
+          inventory: true,
+          variants: true,
+        }
+      }),
+      prisma.review.aggregate({
+        where: { productId: id },
+        _avg: { rating: true },
+        _count: true,
+      })
+    ]);
 
     if (!p) return null;
 
+    // Use live review aggregate instead of stale Product table values
+    const liveRating = reviewAgg._avg.rating ?? 0;
+    const liveReviewCount = reviewAgg._count;
+
     return {
       ...p,
+      rating: Math.round(liveRating * 10) / 10, // Round to 1 decimal
+      reviewCount: liveReviewCount,
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
       currency: p.currency as 'VND',
