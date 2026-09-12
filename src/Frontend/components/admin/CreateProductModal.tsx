@@ -360,11 +360,10 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
                 <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Danh mục *</label>
                 <select value={categorySlug} onChange={e => { setCategorySlug(e.target.value); setErrors(errs => ({ ...errs, categorySlug: '' })); }} style={{ ...inputStyle, backgroundColor: '#fff', borderColor: errors.categorySlug ? 'var(--color-danger)' : 'var(--color-hairline)' }}>
                   <option value="">Chọn danh mục</option>
-                  <option value="men">Nam</option>
-                  <option value="women">Nữ</option>
-                  {categories.filter(c => c !== 'men' && c !== 'women').map(c => (
-                    <option key={c} value={c}>{c.replace(/-/g, ' ')}</option>
-                  ))}
+                  <option value="nam">Nam</option>
+                  <option value="nu">Nữ</option>
+                  <option value="phu-kien">Phụ kiện</option>
+                  <option value="sale">Sale</option>
                 </select>
                 {errors.categorySlug && <div style={{ color: 'var(--color-danger)', fontSize: 12, marginTop: 4 }}>{errors.categorySlug}</div>}
               </div>

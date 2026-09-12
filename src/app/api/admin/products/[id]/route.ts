@@ -57,6 +57,16 @@ export async function PUT(
     }
 
     const updateData: any = {};
+
+    if (body.categorySlug !== undefined) {
+      const normalizedCategorySlug = body.categorySlug.toLowerCase();
+      const allowedCategories = ['nam', 'nu', 'phu-kien', 'sale'];
+      if (!allowedCategories.includes(normalizedCategorySlug)) {
+        return NextResponse.json({ error: 'Invalid category. Must be one of: nam, nu, phu-kien, sale' }, { status: 400 });
+      }
+      body.categorySlug = normalizedCategorySlug;
+    }
+
     const allowedFields = [
       'name', 'slug', 'brand', 'description', 'price', 'compareAt',
       'categorySlug', 'subcategorySlug', 'thumbnail', 'imageUrl', 'imageAlt',

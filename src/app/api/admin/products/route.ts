@@ -120,6 +120,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields: name, slug, brand, price, categorySlug' }, { status: 400 });
     }
 
+    const normalizedCategorySlug = categorySlug.toLowerCase();
+    const allowedCategories = ['nam', 'nu', 'phu-kien', 'sale'];
+    if (!allowedCategories.includes(normalizedCategorySlug)) {
+      return NextResponse.json({ error: 'Invalid category. Must be one of: nam, nu, phu-kien, sale' }, { status: 400 });
+    }
+
     const product = await prisma.$transaction(async (tx) => {
       const newProduct = await tx.product.create({
         data: {
@@ -129,7 +135,7 @@ export async function POST(request: NextRequest) {
           description: description || '',
           price,
           compareAt: compareAt || null,
-          categorySlug,
+          categorySlug: normalizedCategorySlug,
           subcategorySlug: subcategorySlug || null,
           thumbnail: thumbnail || 'https://placehold.co/800',
           images: JSON.stringify(images || []),
