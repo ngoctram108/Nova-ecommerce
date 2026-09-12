@@ -87,7 +87,7 @@ export default function InventoryAdjustmentModal({
           Điều chỉnh tồn kho
         </h3>
         <p style={{ color: 'var(--color-ink-muted-80)', marginBottom: 24 }}>
-          {inventory.product.name} {inventory.variant?.name !== 'Default' ? `- ${inventory.variant.name}` : ''}
+          {inventory.product.name} {inventory.variant && inventory.variant.name !== 'Default' ? `- ${inventory.variant.name}` : ''}
         </p>
 
         {error && (

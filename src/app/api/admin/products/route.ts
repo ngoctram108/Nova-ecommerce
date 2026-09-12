@@ -156,24 +156,70 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          await tx.inventory.create({
+          const stockQty = v.stock || 0;
+          const inv = await tx.inventory.create({
             data: {
               productId: newProduct.id,
               variantId: variant.id,
-              stockQuantity: v.stock || 0,
+              stockQuantity: stockQty,
               lowStockThreshold: v.lowStockThreshold || 5,
             },
           });
+
+          // Create initial inventory log
+          if (stockQty > 0) {
+            await tx.inventoryLog.create({
+              data: {
+                productId: newProduct.id,
+                variantId: variant.id,
+                type: 'IMPORT',
+                quantityChange: stockQty,
+                stockBefore: 0,
+                stockAfter: stockQty,
+                reason: 'Tồn kho ban đầu khi tạo sản phẩm',
+                createdBy: session.userId,
+              },
+            });
+          }
         }
       } else {
-        // Create default inventory for product without variants
+        // Create default variant for product without explicit variants
+        const defaultSku = `${slug.toUpperCase()}-DEFAULT`;
+        const defaultVariant = await tx.productVariant.create({
+          data: {
+            productId: newProduct.id,
+            name: 'Default',
+            sku: defaultSku,
+            price: null,
+            attributes: JSON.stringify({}),
+          },
+        });
+
+        const stockQty = body.stock || 0;
         await tx.inventory.create({
           data: {
             productId: newProduct.id,
-            stockQuantity: body.stock || 0,
+            variantId: defaultVariant.id,
+            stockQuantity: stockQty,
             lowStockThreshold: body.lowStockThreshold || 5,
           },
         });
+
+        // Create initial inventory log
+        if (stockQty > 0) {
+          await tx.inventoryLog.create({
+            data: {
+              productId: newProduct.id,
+              variantId: defaultVariant.id,
+              type: 'IMPORT',
+              quantityChange: stockQty,
+              stockBefore: 0,
+              stockAfter: stockQty,
+              reason: 'Tồn kho ban đầu khi tạo sản phẩm',
+              createdBy: session.userId,
+            },
+          });
+        }
       }
 
       // Create colors
@@ -203,6 +249,7 @@ export async function POST(request: NextRequest) {
 
     revalidatePath('/products');
     revalidatePath('/admin/products');
+    revalidatePath('/admin/inventory');
     return NextResponse.json({ success: true, data: product }, { status: 201 });
   } catch (error: any) {
     console.error('Admin Products POST error:', error);

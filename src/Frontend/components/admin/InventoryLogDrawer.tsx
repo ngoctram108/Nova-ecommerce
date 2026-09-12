@@ -52,7 +52,7 @@ export default function InventoryLogDrawer({ isOpen, onClose, inventory }: Inven
           <div>
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: 4 }}>Lịch sử tồn kho</h3>
             <p style={{ color: 'var(--color-ink-muted-80)', fontSize: 14 }}>
-              {inventory.product.name} {inventory.variant?.name !== 'Default' ? `- ${inventory.variant.name}` : ''}
+              {inventory.product.name} {inventory.variant && inventory.variant.name !== 'Default' ? `- ${inventory.variant.name}` : ''}
             </p>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
