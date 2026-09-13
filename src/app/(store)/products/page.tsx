@@ -4,6 +4,7 @@ import { queryProducts } from '@/Backend/services/catalog';
 import { ProductFilters } from '@/Shared/types';
 import { ProductCard, Pagination, EmptyState } from '@/Frontend/components/ui';
 import ProductFilterSidebar from '@/Frontend/components/sections/ProductFilterSidebar';
+import { formatCategoryName } from '@/Shared/utils';
 import { ProductListSkeleton } from './loading';
 
 import styles from './Products.module.css';
@@ -55,7 +56,7 @@ export default async function ProductsPage({
         }}
       >
         <h1 className="text-display-lg">
-          {filters.category ? filters.category.replace('-', ' ') : 'Tất cả sản phẩm'}
+          {filters.category ? formatCategoryName(filters.category) : 'Tất cả sản phẩm'}
         </h1>
       </div>
 

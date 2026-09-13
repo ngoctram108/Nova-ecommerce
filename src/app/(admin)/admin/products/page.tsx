@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button, Input } from '@/Frontend/components/ui';
 import { useToast } from '@/Frontend/components/ui/Toast';
 import { Search, Plus, Edit3, Trash2, ChevronDown, X, FolderUp } from 'lucide-react';
+import { formatCategoryName } from '@/Shared/utils';
 import CreateProductModal from '@/Frontend/components/admin/CreateProductModal';
 
 interface ProductRow {
@@ -429,7 +430,7 @@ export default function AdminProducts() {
                     </div>
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    <span style={{ fontSize: 13, textTransform: 'capitalize' }}>{product.category.replace(/-/g, ' ')}</span>
+                    <span style={{ fontSize: 13, textTransform: 'capitalize' }}>{formatCategoryName(product.category)}</span>
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{formatCurrency(product.price)}</div>

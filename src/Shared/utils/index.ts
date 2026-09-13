@@ -192,3 +192,17 @@ export function getStarRating(rating: number): { full: number; half: boolean; em
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(' ');
 }
+
+/**
+ * Format category name for display
+ */
+export function formatCategoryName(category: string | undefined | null): string {
+  if (!category) return '';
+  const mapping: Record<string, string> = {
+    'nam': 'Nam',
+    'nu': 'Nữ',
+    'phu-kien': 'Phụ kiện',
+    'sale': 'Sale'
+  };
+  return mapping[category.toLowerCase()] || category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}

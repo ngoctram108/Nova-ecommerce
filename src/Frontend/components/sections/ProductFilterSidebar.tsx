@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Select } from '@/Frontend/components/ui';
 import { SlidersHorizontal, X } from 'lucide-react';
+import { formatCategoryName } from '@/Shared/utils';
 import styles from './ProductFilterSidebar.module.css';
 
 export interface ProductFiltersProps {
@@ -113,7 +114,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
               onClick={() => { updateQuery('category', cat); updateQuery('subcategory', null); }}
               className={`${styles.filterItem} ${currentCategory === cat ? styles.filterItemActive : styles.filterItemInactive}`}
             >
-              {cat === 'nu' ? 'Nữ' : cat === 'nam' ? 'Nam' : 'Phụ kiện'}
+              {formatCategoryName(cat)}
             </button>
           ))}
         </div>
