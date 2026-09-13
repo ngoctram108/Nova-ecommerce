@@ -49,8 +49,8 @@ export default async function ProductsPage({
           display: 'flex',
           alignItems: 'baseline',
           justifyContent: 'space-between',
-          marginBottom: 'var(--space-xl)',
-          paddingBottom: 'var(--space-lg)',
+          marginBottom: 'var(--space-xs)',
+          paddingBottom: 'var(--space-md)',
           borderBottom: '1px solid var(--color-divider-soft)',
         }}
       >
