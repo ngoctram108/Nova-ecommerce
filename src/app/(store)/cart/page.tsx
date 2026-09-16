@@ -4,20 +4,22 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/Frontend/contexts/CartContext';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 import { Button, EmptyState } from '@/Frontend/components/ui';
 import { ShoppingBag, Trash2 } from 'lucide-react';
 
 export default function CartPage() {
   const { items, itemCount, subtotal, updateQuantity, removeItem } = useCart();
+  const { t, locale } = useLocale();
 
   if (itemCount === 0) {
     return (
       <div className="container section" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <EmptyState
           icon={<ShoppingBag size={48} />}
-          title="Giỏ hàng trống"
-          description="Bạn chưa có sản phẩm nào trong giỏ hàng. Khám phá các bộ sưu tập mới của chúng tôi."
-          action={{ label: 'Tiếp tục mua sắm', href: '/products' }}
+          title={t.cart.empty}
+          description={t.cart.emptyDesc}
+          action={{ label: t.cart.continueShopping, href: '/products' }}
         />
       </div>
     );
@@ -26,7 +28,7 @@ export default function CartPage() {
   return (
     <div className="container section" style={{ minHeight: '80vh' }}>
       <h1 className="text-display-lg" style={{ marginBottom: 'var(--space-xxl)' }}>
-        Giỏ hàng của bạn
+        {t.cart.title}
       </h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 'var(--space-xxl)' }} className="lg:grid-cols-12">
@@ -44,9 +46,9 @@ export default function CartPage() {
             }}
             className="md:grid md:grid-cols-12 gap-4"
           >
-            <div className="col-span-6">Sản phẩm</div>
-            <div className="col-span-2 text-center">Số lượng</div>
-            <div className="col-span-3 text-right">Tổng cộng</div>
+            <div className="col-span-6">{t.cart.product}</div>
+            <div className="col-span-2 text-center">{t.cart.qty}</div>
+            <div className="col-span-3 text-right">{t.cart.total}</div>
             <div className="col-span-1"></div>
           </div>
 
@@ -110,7 +112,7 @@ export default function CartPage() {
                     </div>
                   )}
                   <div className="md:hidden" style={{ fontWeight: 600, color: 'var(--color-ink)' }}>
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
+                    {new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(item.price)}
                   </div>
                 </div>
               </div>
@@ -175,7 +177,7 @@ export default function CartPage() {
                   color: 'var(--color-ink)',
                 }}
               >
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                {new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(
                   item.price * item.quantity
                 )}
               </div>
@@ -184,7 +186,7 @@ export default function CartPage() {
               <div className="md:col-span-1" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button
                   onClick={() => removeItem(item.productId, item.variantId)}
-                  aria-label="Xóa sản phẩm"
+                  aria-label={t.cart.remove}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -220,19 +222,19 @@ export default function CartPage() {
                 marginBottom: 'var(--space-lg)',
               }}
             >
-              Tóm tắt đơn hàng
+              {t.cart.orderSummary}
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-ink-muted-80)' }}>Tạm tính ({itemCount} sản phẩm)</span>
+                <span style={{ color: 'var(--color-ink-muted-80)' }}>{t.cart.subtotal} ({itemCount} {t.cart.items})</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-ink)' }}>
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}
+                  {new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(subtotal)}
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--color-ink-muted-80)' }}>Phí giao hàng</span>
-                <span style={{ color: 'var(--color-ink-muted-80)' }}>Chưa tính</span>
+                <span style={{ color: 'var(--color-ink-muted-80)' }}>{t.cart.shippingFee}</span>
+                <span style={{ color: 'var(--color-ink-muted-80)' }}>{t.cart.notCalculated}</span>
               </div>
             </div>
 
@@ -246,19 +248,19 @@ export default function CartPage() {
               }}
             >
               <span style={{ fontSize: 'var(--text-body-strong-size)', fontWeight: 600, color: 'var(--color-ink)' }}>
-                Tổng cộng
+                {t.cart.grandTotal}
               </span>
               <span style={{ fontSize: 'var(--text-display-md-size)', fontWeight: 600, color: 'var(--color-ink)' }}>
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal)}
+                {new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND' }).format(subtotal)}
               </span>
             </div>
 
             <Button variant="store-hero" fullWidth href="/checkout">
-              Tiến hành thanh toán
+              {t.cart.checkout}
             </Button>
             
             <p style={{ marginTop: 16, fontSize: 'var(--text-fine-print-size)', color: 'var(--color-ink-muted-48)', textAlign: 'center' }}>
-              Phí giao hàng và thuế (nếu có) sẽ được tính tại bước thanh toán.
+              {t.cart.shippingNote}
             </p>
           </div>
         </div>
@@ -266,3 +268,4 @@ export default function CartPage() {
     </div>
   );
 }
+

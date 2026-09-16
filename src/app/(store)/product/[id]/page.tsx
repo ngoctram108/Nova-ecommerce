@@ -66,15 +66,8 @@ export default async function ProductDetailPage({
                   {'★'.repeat(5 - Math.floor(product.rating))}
                 </span>
               </div>
-              {product.reviewCount > 0 ? (
-                <span className={styles.reviewCount}>
-                  {product.rating.toFixed(1)}/5 ({product.reviewCount} đánh giá)
-                </span>
-              ) : (
-                <span className={styles.reviewCount}>
-                  (Chưa có đánh giá)
-                </span>
-              )}
+              {/* ProductDetailReviews Client Component */}
+              <ProductDetailReviews rating={product.rating} count={product.reviewCount} />
             </div>
           </div>
 
@@ -101,16 +94,7 @@ export default async function ProductDetailPage({
           <AddToCartForm product={product} />
 
           {/* Additional info */}
-          <div className={styles.additionalInfo}>
-            <div className={styles.infoRow}>
-              <span>🚚</span>
-              <span>Miễn phí giao hàng cho đơn từ 1.000.000đ</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span>🔄</span>
-              <span>Đổi trả miễn phí trong 30 ngày</span>
-            </div>
-          </div>
+          <ProductAdditionalInfo />
         </div>
       </div>
 
@@ -144,3 +128,5 @@ function ReviewsSkeleton() {
     </div>
   );
 }
+
+import { ProductDetailReviews, ProductAdditionalInfo } from './ProductDetailI18n';

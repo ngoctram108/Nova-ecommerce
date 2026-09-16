@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DollarSign, Package, ShoppingBag, Users, BarChart3, LogOut, Settings, Boxes, MessageSquare } from 'lucide-react';
 import { Providers } from '@/Frontend/contexts/Providers';
+import LanguageSwitcher from '@/Frontend/components/ui/LanguageSwitcher';
 
 export default function AdminLayout({
   children,
@@ -92,10 +93,13 @@ export default function AdminLayout({
 
         {/* Main Content */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <header style={{ height: 72, backgroundColor: '#fff', borderBottom: '1px solid var(--color-hairline)', display: 'flex', alignItems: 'center', padding: '0 var(--space-xxl)' }}>
+          <header style={{ height: 72, backgroundColor: '#fff', borderBottom: '1px solid var(--color-hairline)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 var(--space-xxl)' }}>
             <h2 style={{ fontSize: 'var(--text-title-size)', fontWeight: 600, color: 'var(--color-ink)' }}>
               {links.find(l => l.href === pathname)?.name || 'Dashboard'}
             </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <LanguageSwitcher />
+            </div>
           </header>
           <div style={{ padding: 'var(--space-xxl)', flex: 1, overflowY: 'auto' }}>
             {children}

@@ -112,6 +112,7 @@ export default function Header() {
             </Link>
 
             <div className={styles.mobileIconGroup}>
+              <LanguageSwitcher />
               <button className={styles.iconBtn} onClick={() => setIsMobileMenuOpen(true)} aria-label={t.nav.search}>
                 <Search size={22} strokeWidth={1.5} />
               </button>

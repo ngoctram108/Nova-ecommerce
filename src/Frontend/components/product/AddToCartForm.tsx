@@ -5,8 +5,11 @@ import { Product, ProductVariant } from '@/Shared/types';
 import { useCart } from '@/Frontend/contexts/CartContext';
 import { Button } from '@/Frontend/components/ui';
 import { useProductImage } from '@/Frontend/hooks/useProductImage';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export default function AddToCartForm({ product }: { product: Product }) {
+  const { t } = useLocale();
+
   // Determine if product has valid colors and sizes
   const hasColors = product.colors && product.colors.length > 0;
   const hasSizes = product.sizes && product.sizes.length > 0;
@@ -127,7 +130,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
           {hasColors && (
             <div>
               <div style={{ marginBottom: 8, fontWeight: 500 }}>
-                Màu sắc: <span style={{ fontWeight: 600 }}>{selectedColor}</span>
+                {t.productDetail.color}: <span style={{ fontWeight: 600 }}>{selectedColor}</span>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
                 {product.colors!.map((color) => {
@@ -166,7 +169,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
           {/* Sizes */}
           {hasSizes && (
             <div>
-              <div style={{ marginBottom: 8, fontWeight: 500 }}>Kích thước</div>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>{t.productDetail.size}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
                 {product.sizes!.map((size) => {
                   const isSelected = selectedSize === size;
@@ -211,7 +214,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
       {hasVariants && !hasColors && !hasSizes && (
         <div>
           <h3 style={{ fontSize: 'var(--text-body-strong-size)', fontWeight: 600, marginBottom: 12 }}>
-            Tùy chọn
+            {t.productDetail.variant}
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             {product.variants!.map((v) => {
@@ -246,11 +249,11 @@ export default function AddToCartForm({ product }: { product: Product }) {
       <div>
         {currentStock > 0 ? (
           <div style={{ color: 'var(--color-success)', fontSize: 'var(--text-body-strong-size)', fontWeight: 500 }}>
-            {currentStock <= 5 ? `Chỉ còn ${currentStock} sản phẩm` : 'Còn hàng'}
+            {currentStock <= 5 ? t.productDetail.lowStock.replace('{count}', currentStock.toString()) : t.productDetail.inStock}
           </div>
         ) : (
           <div style={{ color: 'var(--color-danger)', fontSize: 'var(--text-body-strong-size)', fontWeight: 500 }}>
-            Hết hàng
+            {t.productDetail.outOfStock}
           </div>
         )}
       </div>
@@ -318,7 +321,7 @@ export default function AddToCartForm({ product }: { product: Product }) {
             onClick={handleAddToCart}
             disabled={isOutOfStock}
           >
-            {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
+            {isOutOfStock ? t.productDetail.outOfStock : t.productDetail.addToCart}
           </Button>
         </div>
       </div>
