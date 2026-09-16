@@ -458,7 +458,7 @@ const vi = {
     updateSuccess: 'Đánh giá đã được cập nhật!',
     error: 'Không thể gửi đánh giá. Vui lòng thử lại.',
   },
-} as const;
+};
 
 export type TranslationDictionary = typeof vi;
 export default vi;
