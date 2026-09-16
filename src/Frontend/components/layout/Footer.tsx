@@ -3,36 +3,38 @@
 import React from 'react';
 import Link from 'next/link';
 import { Globe, Mail } from 'lucide-react';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useLocale();
 
   const footerLinks = [
     {
-      title: 'Sản phẩm',
+      title: t.footer.productsTitle,
       links: [
-        { name: 'Hàng mới về', href: '/products?sort=newest' },
-        { name: 'Bán chạy', href: '/products?sort=recommended' },
-        { name: 'Sale', href: '/products?badge=SALE' },
-        { name: 'Tất cả sản phẩm', href: '/products' },
+        { name: t.footer.newArrivals, href: '/products?sort=newest' },
+        { name: t.footer.bestSellers, href: '/products?sort=recommended' },
+        { name: t.nav.sale, href: '/products?badge=SALE' },
+        { name: t.footer.allProducts, href: '/products' },
       ],
     },
     {
-      title: 'Hỗ trợ khách hàng',
+      title: t.footer.supportTitle,
       links: [
-        { name: 'Trung tâm trợ giúp', href: '/help' },
-        { name: 'Giao hàng & Nhận hàng', href: '/shipping' },
-        { name: 'Chính sách đổi trả', href: '/returns' },
-        { name: 'Bảo hành', href: '/warranty' },
+        { name: t.footer.helpCenter, href: '/help' },
+        { name: t.footer.shippingDelivery, href: '/shipping' },
+        { name: t.footer.returnPolicy, href: '/returns' },
+        { name: t.footer.warranty, href: '/warranty' },
       ],
     },
     {
-      title: 'Về NORA',
+      title: t.footer.aboutTitle,
       links: [
-        { name: 'Câu chuyện thương hiệu', href: '/about' },
-        { name: 'Tuyển dụng', href: '/careers' },
-        { name: 'Phát triển bền vững', href: '/sustainability' },
-        { name: 'Liên hệ', href: '/contact' },
+        { name: t.footer.brandStory, href: '/about' },
+        { name: t.footer.careers, href: '/careers' },
+        { name: t.footer.sustainability, href: '/sustainability' },
+        { name: t.footer.contact, href: '/contact' },
       ],
     },
   ];
@@ -77,7 +79,7 @@ export default function Footer() {
                 maxWidth: 280,
               }}
             >
-              Thương hiệu thời trang và phong cách sống lấy cảm hứng từ thiết kế tối giản Bắc Âu. Đơn giản, bền bỉ và thanh lịch.
+              {t.footer.brandDesc}
             </p>
             <div style={{ display: 'flex', gap: 16 }}>
               <a href="https://example.com" aria-label="Website" style={{ color: 'inherit' }}>
@@ -142,8 +144,8 @@ export default function Footer() {
         >
           <p>© {currentYear} NORA. All rights reserved.</p>
           <div style={{ display: 'flex', gap: 24 }}>
-            <Link href="/privacy">Chính sách bảo mật</Link>
-            <Link href="/terms">Điều khoản sử dụng</Link>
+            <Link href="/privacy">{t.footer.privacy}</Link>
+            <Link href="/terms">{t.footer.terms}</Link>
           </div>
         </div>
       </div>

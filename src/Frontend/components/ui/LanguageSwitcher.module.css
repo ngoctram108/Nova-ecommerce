@@ -1,0 +1,40 @@
+.switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.option {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--color-ink-muted-48);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  line-height: 1;
+}
+
+.option:hover {
+  color: var(--color-ink);
+}
+
+.option.active {
+  color: var(--color-primary);
+  background-color: rgba(0, 102, 204, 0.08);
+}
+
+.divider {
+  color: var(--color-ink-muted-48);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1;
+}

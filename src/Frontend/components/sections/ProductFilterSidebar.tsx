@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Select } from '@/Frontend/components/ui';
 import { SlidersHorizontal, X } from 'lucide-react';
-import { formatCategoryName } from '@/Shared/utils';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 import styles from './ProductFilterSidebar.module.css';
 
 export interface ProductFiltersProps {
@@ -22,6 +22,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { t } = useLocale();
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -72,12 +73,16 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
 
   const hasActiveFilters = searchParams.toString() !== '' && searchParams.toString() !== 'sort=recommended';
 
+  const getCategoryLabel = (cat: string) => {
+    return (t.categories as Record<string, string>)[cat] || cat;
+  };
+
   const FilterContent = () => (
     <div className={styles.sidebarContainer}>
       {/* Search & Sort for Mobile (Hidden on Desktop via CSS if needed, but handled by drawer) */}
       <div className={styles.filterSection}>
         <Input
-          placeholder="Tìm kiếm sản phẩm..."
+          placeholder={t.products.searchPlaceholder}
           defaultValue={searchParams.get('q') || ''}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -88,10 +93,10 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
         />
         <Select
           options={[
-            { value: 'recommended', label: 'Nổi bật nhất' },
-            { value: 'newest', label: 'Mới nhất' },
-            { value: 'price-asc', label: 'Giá: Thấp đến cao' },
-            { value: 'price-desc', label: 'Giá: Cao đến thấp' },
+            { value: 'recommended', label: t.products.sortRecommended },
+            { value: 'newest', label: t.products.sortNewest },
+            { value: 'price-asc', label: t.products.sortPriceAsc },
+            { value: 'price-desc', label: t.products.sortPriceDesc },
           ]}
           value={currentSort}
           onChange={(e) => updateQuery('sort', e.target.value)}
@@ -100,13 +105,13 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
 
       {/* Category Filter */}
       <div className={styles.filterSection}>
-        <h3 className={styles.sectionTitle}>Danh mục</h3>
+        <h3 className={styles.sectionTitle}>{t.products.category}</h3>
         <div className={styles.filterList}>
           <button
             onClick={() => { updateQuery('category', null); updateQuery('subcategory', null); }}
             className={`${styles.filterItem} ${currentCategory === '' ? styles.filterItemActive : styles.filterItemInactive}`}
           >
-            Tất cả
+            {t.categories.all}
           </button>
           {['nu', 'nam', 'phu-kien'].map((cat) => (
             <button
@@ -114,7 +119,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
               onClick={() => { updateQuery('category', cat); updateQuery('subcategory', null); }}
               className={`${styles.filterItem} ${currentCategory === cat ? styles.filterItemActive : styles.filterItemInactive}`}
             >
-              {formatCategoryName(cat)}
+              {getCategoryLabel(cat)}
             </button>
           ))}
         </div>
@@ -123,13 +128,13 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
       {/* Subcategory Filter */}
       {availableFilters.subcategories && availableFilters.subcategories.length > 0 && currentCategory && (
         <div className={styles.filterSection}>
-          <h3 className={styles.sectionTitle}>Loại sản phẩm</h3>
+          <h3 className={styles.sectionTitle}>{t.products.productType}</h3>
           <div className={styles.filterList}>
             <button
               onClick={() => updateQuery('subcategory', null)}
               className={`${styles.filterItem} ${currentSubcategory === '' ? styles.filterItemActive : styles.filterItemInactive}`}
             >
-              Tất cả loại
+              {t.products.allTypes}
             </button>
             {availableFilters.subcategories.map((subcat) => (
               <button
@@ -137,7 +142,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
                 onClick={() => updateQuery('subcategory', subcat)}
                 className={`${styles.filterItem} ${currentSubcategory === subcat ? styles.filterItemActive : styles.filterItemInactive}`}
               >
-                {subcat.replace(/-/g, ' ')}
+                {(t.subcategories as Record<string, string>)[subcat] || subcat.replace(/-/g, ' ')}
               </button>
             ))}
           </div>
@@ -147,13 +152,13 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
       {/* Brand Filter */}
       {availableFilters.brands.length > 0 && (
         <div className={styles.filterSection}>
-          <h3 className={styles.sectionTitle}>Thương hiệu</h3>
+          <h3 className={styles.sectionTitle}>{t.products.brand}</h3>
           <div className={styles.filterList}>
             <button
               onClick={() => updateQuery('brand', null)}
               className={`${styles.filterItem} ${currentBrand === '' ? styles.filterItemActive : styles.filterItemInactive}`}
             >
-              Tất cả
+              {t.categories.all}
             </button>
             {availableFilters.brands.map((brand) => (
               <button
@@ -170,12 +175,12 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
 
       {/* Price Filter */}
       <div className={styles.filterSection}>
-        <h3 className={styles.sectionTitle}>Khoảng giá</h3>
+        <h3 className={styles.sectionTitle}>{t.products.priceRange}</h3>
         <div className={styles.priceInputGroup}>
           <div className={styles.priceInput}>
             <Input 
               type="number" 
-              placeholder="Tối thiểu" 
+              placeholder={t.products.priceMin} 
               value={minPrice} 
               onChange={(e) => setMinPrice(e.target.value)} 
             />
@@ -184,7 +189,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
           <div className={styles.priceInput}>
             <Input 
               type="number" 
-              placeholder="Tối đa" 
+              placeholder={t.products.priceMax} 
               value={maxPrice} 
               onChange={(e) => setMaxPrice(e.target.value)} 
             />
@@ -196,20 +201,20 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
             fullWidth 
             onClick={applyPriceFilter}
           >
-            Áp dụng
+            {t.products.applyPrice}
           </Button>
         </div>
       </div>
 
       {/* Rating Filter */}
       <div className={styles.filterSection}>
-        <h3 className={styles.sectionTitle}>Đánh giá</h3>
+        <h3 className={styles.sectionTitle}>{t.products.rating}</h3>
         <div className={styles.filterList}>
           <button
             onClick={() => updateQuery('rating', null)}
             className={`${styles.filterItem} ${currentRating === '' ? styles.filterItemActive : styles.filterItemInactive}`}
           >
-            Mọi đánh giá
+            {t.products.allRatings}
           </button>
           {[4, 3].map((rating) => (
             <button
@@ -219,7 +224,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
             >
               <span style={{ color: '#ffb400' }}>{'★'.repeat(rating)}</span>
               <span style={{ color: 'var(--color-hairline)' }}>{'★'.repeat(5 - rating)}</span>
-              <span style={{ marginLeft: 4 }}>trở lên</span>
+              <span style={{ marginLeft: 4 }}>{t.products.andUp}</span>
             </button>
           ))}
         </div>
@@ -227,7 +232,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
 
       {/* In Stock Filter */}
       <div className={styles.filterSection}>
-        <h3 className={styles.sectionTitle}>Tình trạng</h3>
+        <h3 className={styles.sectionTitle}>{t.products.availability}</h3>
         <div className={styles.filterList}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 'var(--text-body-size)' }}>
             <input 
@@ -237,7 +242,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
               style={{ width: 18, height: 18, accentColor: 'var(--color-primary)' }}
             />
             <span className={currentInStock ? styles.filterItemActive : styles.filterItemInactive}>
-              Chỉ hiển thị sản phẩm còn hàng
+              {t.products.inStockOnly}
             </span>
           </label>
         </div>
@@ -252,7 +257,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
             onClick={() => router.push('/products')}
             style={{ color: 'var(--color-error)' }}
           >
-            Xóa toàn bộ bộ lọc
+            {t.products.clearFilters}
           </Button>
         </div>
       )}
@@ -267,7 +272,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
         onClick={() => setIsDrawerOpen(true)}
       >
         <SlidersHorizontal size={18} />
-        Bộ lọc & Sắp xếp
+        {t.products.filterSort}
       </button>
 
       {/* Desktop Sidebar (visible on lg+) */}
@@ -287,7 +292,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
       
       <div className={`${styles.drawer} ${isDrawerOpen ? styles.drawerOpen : ''}`}>
         <div className={styles.drawerHeader}>
-          <span className={styles.drawerTitle}>Bộ lọc</span>
+          <span className={styles.drawerTitle}>{t.products.filters}</span>
           <button
             onClick={() => setIsDrawerOpen(false)}
             style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
@@ -302,7 +307,7 @@ export default function ProductFilterSidebar({ availableFilters }: ProductFilter
         
         <div className={styles.drawerFooter}>
           <Button fullWidth onClick={() => setIsDrawerOpen(false)}>
-            Xem kết quả
+            {t.products.viewResults}
           </Button>
         </div>
       </div>

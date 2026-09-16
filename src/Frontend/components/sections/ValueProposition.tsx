@@ -3,28 +3,31 @@
 import React from 'react';
 import { Package, Truck, ShieldCheck, Leaf } from 'lucide-react';
 import { Input, Button } from '@/Frontend/components/ui';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export default function ValueProposition() {
+  const { t } = useLocale();
+
   const values = [
     {
       icon: <Leaf size={32} strokeWidth={1.5} />,
-      title: 'Chất liệu bền vững',
-      desc: 'Chúng tôi ưu tiên sử dụng cotton hữu cơ, len merino tái chế và các vật liệu thân thiện với môi trường.',
+      title: t.home.sustainableTitle,
+      desc: t.home.sustainableDesc,
     },
     {
       icon: <ShieldCheck size={32} strokeWidth={1.5} />,
-      title: 'Thiết kế vượt thời gian',
-      desc: 'Phong cách tối giản không bao giờ lỗi mốt, dễ dàng kết hợp và sử dụng trong nhiều năm.',
+      title: t.home.timelessTitle,
+      desc: t.home.timelessDesc,
     },
     {
       icon: <Truck size={32} strokeWidth={1.5} />,
-      title: 'Giao hàng nhanh chóng',
-      desc: 'Miễn phí giao hàng toàn quốc cho đơn hàng từ 1.000.000đ. Nhận hàng trong 2-3 ngày làm việc.',
+      title: t.home.shippingTitle,
+      desc: t.home.shippingDesc,
     },
     {
       icon: <Package size={32} strokeWidth={1.5} />,
-      title: 'Đổi trả dễ dàng',
-      desc: 'Chính sách đổi trả miễn phí trong vòng 30 ngày nếu bạn không hoàn toàn hài lòng với sản phẩm.',
+      title: t.home.returnsTitle,
+      desc: t.home.returnsDesc,
     },
   ];
 
@@ -104,7 +107,7 @@ export default function ValueProposition() {
               color: 'var(--color-ink)',
             }}
           >
-            Đăng ký nhận thông tin
+            {t.home.newsletterTitle}
           </h2>
           <p
             style={{
@@ -114,13 +117,13 @@ export default function ValueProposition() {
               maxWidth: 500,
             }}
           >
-            Nhận ưu đãi 10% cho đơn hàng đầu tiên và cập nhật sớm nhất về các bộ sưu tập mới của NORA.
+            {t.home.newsletterDesc}
           </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               // Mock submit
-              alert('Cảm ơn bạn đã đăng ký!');
+              alert(t.home.newsletterSuccess);
               (e.target as HTMLFormElement).reset();
             }}
             style={{
@@ -134,13 +137,13 @@ export default function ValueProposition() {
             <div style={{ flex: 1 }}>
               <Input
                 type="email"
-                placeholder="Địa chỉ email của bạn"
+                placeholder={t.home.newsletterPlaceholder}
                 required
-                aria-label="Địa chỉ email"
+                aria-label={t.home.newsletterPlaceholder}
               />
             </div>
             <Button variant="primary" type="submit">
-              Đăng ký
+              {t.home.newsletterButton}
             </Button>
           </form>
         </div>

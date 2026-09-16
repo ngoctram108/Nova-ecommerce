@@ -4,8 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/Frontend/components/ui';
 import Image from 'next/image';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export default function HeroSection() {
+  const { t } = useLocale();
+
   return (
     <section
       style={{
@@ -58,7 +61,7 @@ export default function HeroSection() {
             animation: 'fadeInUp 0.8s ease-out',
           }}
         >
-          Bộ sưu tập Thu Đông 2026
+          {t.home.heroSubtitle}
         </div>
         
         <h1
@@ -68,7 +71,7 @@ export default function HeroSection() {
             animation: 'fadeInUp 0.8s ease-out 0.1s both',
           }}
         >
-          Tối giản. Thanh lịch. Vượt thời gian.
+          {t.home.heroTitle}
         </h1>
         
         <p
@@ -80,7 +83,7 @@ export default function HeroSection() {
             animation: 'fadeInUp 0.8s ease-out 0.2s both',
           }}
         >
-          Khám phá sự hoàn hảo trong từng chi tiết. Thiết kế tinh giản, chất liệu cao cấp mang đến trải nghiệm đích thực.
+          {t.home.heroDescription}
         </p>
         
         <div
@@ -92,10 +95,10 @@ export default function HeroSection() {
           className="flex-col sm:flex-row"
         >
           <Button variant="primary" size="lg" href="/products?sort=newest">
-            Khám phá ngay
+            {t.home.heroCta}
           </Button>
           <Button variant="ghost" size="lg" href="/products?badge=SALE" style={{ color: 'var(--color-on-dark)' }}>
-            Xem ưu đãi
+            {t.home.heroSale}
           </Button>
         </div>
       </div>

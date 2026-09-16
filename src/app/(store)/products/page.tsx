@@ -2,10 +2,10 @@ import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { queryProducts } from '@/Backend/services/catalog';
 import { ProductFilters } from '@/Shared/types';
-import { ProductCard, Pagination, EmptyState } from '@/Frontend/components/ui';
+import { ProductCard, Pagination } from '@/Frontend/components/ui';
 import ProductFilterSidebar from '@/Frontend/components/sections/ProductFilterSidebar';
-import { formatCategoryName } from '@/Shared/utils';
 import { ProductListSkeleton } from './loading';
+import { ProductsPageTitle, ProductsResultCount, ProductsEmptyState } from './ProductsI18n';
 
 import styles from './Products.module.css';
 
@@ -55,9 +55,7 @@ export default async function ProductsPage({
           borderBottom: '1px solid var(--color-divider-soft)',
         }}
       >
-        <h1 className="text-display-lg">
-          {filters.category ? formatCategoryName(filters.category) : 'Tất cả sản phẩm'}
-        </h1>
+        <ProductsPageTitle category={filters.category} />
       </div>
 
       {/* Trigger Suspense when query string changes to show skeleton immediately */}
@@ -73,9 +71,7 @@ async function ProductListContent({ filters }: { filters: ProductFilters }) {
 
   return (
     <>
-      <div style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-ink-muted-80)', marginBottom: 'var(--space-lg)', textAlign: 'right', marginTop: '-60px' }}>
-        Hiển thị {result.data.length} trên tổng {result.pagination.total} sản phẩm
-      </div>
+      <ProductsResultCount shown={result.data.length} total={result.pagination.total} />
       <div className={styles.pageLayout}>
         {/* Sidebar */}
         <aside className={styles.sidebarWrapper}>
@@ -101,13 +97,7 @@ async function ProductListContent({ filters }: { filters: ProductFilters }) {
               </div>
             </>
           ) : (
-            <div style={{ paddingTop: 'var(--space-xl)' }}>
-              <EmptyState
-                icon={<span>🔍</span>}
-                title="Không tìm thấy sản phẩm"
-                description="Không có sản phẩm nào phù hợp với bộ lọc của bạn. Vui lòng thử lại với các tiêu chí khác."
-              />
-            </div>
+            <ProductsEmptyState />
           )}
         </div>
       </div>

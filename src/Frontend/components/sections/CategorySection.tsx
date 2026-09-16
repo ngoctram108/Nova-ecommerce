@@ -4,10 +4,17 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { categories } from '@/Backend/database/data/categories';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export default function CategorySection() {
+  const { t } = useLocale();
   // Only show first 4 categories
   const featuredCategories = categories.slice(0, 4);
+
+  // Get localized category name
+  const getCategoryName = (slug: string, fallbackName: string) => {
+    return (t.categories as Record<string, string>)[slug] || fallbackName;
+  };
 
   return (
     <section className="section container">
@@ -27,7 +34,7 @@ export default function CategorySection() {
             letterSpacing: 'var(--text-display-md-ls)',
           }}
         >
-          Danh mục nổi bật
+          {t.home.featuredCategories}
         </h2>
         <Link
           href="/products"
@@ -41,7 +48,7 @@ export default function CategorySection() {
           }}
           className="hover:underline"
         >
-          Xem tất cả <span aria-hidden="true">→</span>
+          {t.home.viewAll} <span aria-hidden="true">→</span>
         </Link>
       </div>
 
@@ -81,7 +88,7 @@ export default function CategorySection() {
               {category.image && (
                 <Image
                   src={category.image}
-                  alt={category.name}
+                  alt={getCategoryName(category.slug, category.name)}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1068px) 50vw, 25vw"
                   style={{
@@ -110,10 +117,10 @@ export default function CategorySection() {
                     marginBottom: 4,
                   }}
                 >
-                  {category.name}
+                  {getCategoryName(category.slug, category.name)}
                 </h3>
                 <p style={{ fontSize: 'var(--text-caption-size)', opacity: 0.9 }}>
-                  Khám phá ngay
+                  {t.home.explore}
                 </p>
               </div>
             </div>

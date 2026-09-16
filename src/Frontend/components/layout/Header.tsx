@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Search, ShoppingBag, User, Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
 import { useCart } from '@/Frontend/contexts/CartContext';
 import { useAuth } from '@/Frontend/contexts/AuthContext';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
+import LanguageSwitcher from '@/Frontend/components/ui/LanguageSwitcher';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -24,6 +26,7 @@ export default function Header() {
   const router = useRouter();
   const { itemCount } = useCart();
   const { user } = useAuth();
+  const { t } = useLocale();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +102,7 @@ export default function Header() {
             <button
               className={styles.iconBtn}
               onClick={() => setIsMobileMenuOpen(true)}
-              aria-label="Mở menu"
+              aria-label={t.nav.openMenu}
             >
               <Menu size={24} strokeWidth={1.5} />
             </button>
@@ -109,10 +112,10 @@ export default function Header() {
             </Link>
 
             <div className={styles.mobileIconGroup}>
-              <button className={styles.iconBtn} onClick={() => setIsMobileMenuOpen(true)} aria-label="Tìm kiếm">
+              <button className={styles.iconBtn} onClick={() => setIsMobileMenuOpen(true)} aria-label={t.nav.search}>
                 <Search size={22} strokeWidth={1.5} />
               </button>
-              <Link href="/cart" className={styles.iconBtn} aria-label="Giỏ hàng">
+              <Link href="/cart" className={styles.iconBtn} aria-label={t.nav.cart}>
                 <ShoppingBag size={22} strokeWidth={1.5} />
                 {itemCount > 0 && (
                   <span className={`${styles.badge} ${styles.mobileBadge}`}>
@@ -135,7 +138,7 @@ export default function Header() {
             {/* Desktop Nav - 1 HÀNG DUY NHẤT */}
             <nav className={styles.navLinks}>
               <Link href="/products?sort=newest" className={styles.navItem}>
-                Sản phẩm mới
+                {t.nav.newProducts}
               </Link>
               
               <div 
@@ -144,7 +147,7 @@ export default function Header() {
                 onMouseLeave={handleMouseLeave}
               >
                 <Link href="/products?category=nu">
-                  Nữ
+                  {t.nav.women}
                 </Link>
               </div>
 
@@ -154,23 +157,24 @@ export default function Header() {
                 onMouseLeave={handleMouseLeave}
               >
                 <Link href="/products?category=nam">
-                  Nam
+                  {t.nav.men}
                 </Link>
               </div>
 
-              <Link href="/products?category=phu-kien" className={styles.navItem}>Phụ kiện</Link>
-              <Link href="/products?badge=SALE" className={styles.navItemSale}>Sale</Link>
+              <Link href="/products?category=phu-kien" className={styles.navItem}>{t.nav.accessories}</Link>
+              <Link href="/products?badge=SALE" className={styles.navItemSale}>{t.nav.sale}</Link>
             </nav>
 
             {/* Desktop Icons */}
             <div className={styles.icons}>
+              <LanguageSwitcher />
               {isSearchOpen ? (
                 <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
                   <input
                     ref={searchInputRef}
                     type="text"
                     className={styles.searchInput}
-                    placeholder="Tìm kiếm..."
+                    placeholder={t.nav.searchPlaceholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
@@ -178,19 +182,19 @@ export default function Header() {
                       if (!searchQuery) setIsSearchOpen(false);
                     }}
                   />
-                  <button type="submit" className={styles.iconBtn} aria-label="Tìm kiếm">
+                  <button type="submit" className={styles.iconBtn} aria-label={t.nav.search}>
                     <Search size={22} strokeWidth={1.5} />
                   </button>
                 </form>
               ) : (
-                <button className={styles.iconBtn} onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }} aria-label="Tìm kiếm">
+                <button className={styles.iconBtn} onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 50); }} aria-label={t.nav.search}>
                   <Search size={22} strokeWidth={1.5} />
                 </button>
               )}
-              <Link href={user?.role === 'ADMIN' ? '/admin' : '/account'} className={styles.iconBtn} aria-label="Tài khoản">
+              <Link href={user?.role === 'ADMIN' ? '/admin' : '/account'} className={styles.iconBtn} aria-label={t.nav.account}>
                 <User size={22} strokeWidth={1.5} />
               </Link>
-              <Link href="/cart" className={styles.iconBtn} aria-label="Giỏ hàng">
+              <Link href="/cart" className={styles.iconBtn} aria-label={t.nav.cart}>
                 <ShoppingBag size={22} strokeWidth={1.5} />
                 {itemCount > 0 && (
                   <span className={styles.badge}>
@@ -214,19 +218,19 @@ export default function Header() {
             <div className={styles.megaMenuContainer}>
               <div className={styles.megaMenuGrid}>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nu&subcategory=ao" className={styles.megaMenuLink}>Áo</Link>
-                  <Link href="/products?category=nu&subcategory=quan" className={styles.megaMenuLink}>Quần</Link>
-                  <Link href="/products?category=nu&subcategory=dam-vay" className={styles.megaMenuLink}>Váy / Đầm</Link>
+                  <Link href="/products?category=nu&subcategory=ao" className={styles.megaMenuLink}>{t.subcategories['ao']}</Link>
+                  <Link href="/products?category=nu&subcategory=quan" className={styles.megaMenuLink}>{t.subcategories['quan']}</Link>
+                  <Link href="/products?category=nu&subcategory=dam-vay" className={styles.megaMenuLink}>{t.subcategories['dam-vay']}</Link>
                 </div>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nu&subcategory=jumpsuit" className={styles.megaMenuLink}>Jumpsuit</Link>
-                  <Link href="/products?category=nu&subcategory=do-the-thao" className={styles.megaMenuLink}>Đồ thể thao</Link>
-                  <Link href="/products?category=nu&subcategory=do-ngu" className={styles.megaMenuLink}>Đồ ngủ</Link>
+                  <Link href="/products?category=nu&subcategory=jumpsuit" className={styles.megaMenuLink}>{t.subcategories['jumpsuit']}</Link>
+                  <Link href="/products?category=nu&subcategory=do-the-thao" className={styles.megaMenuLink}>{t.subcategories['do-the-thao']}</Link>
+                  <Link href="/products?category=nu&subcategory=do-ngu" className={styles.megaMenuLink}>{t.subcategories['do-ngu']}</Link>
                 </div>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nu&subcategory=giay" className={styles.megaMenuLink}>Giày</Link>
-                  <Link href="/products?category=nu&subcategory=tui-xach" className={styles.megaMenuLink}>Túi xách</Link>
-                  <Link href="/products?category=nu&subcategory=phu-kien" className={styles.megaMenuLink}>Phụ kiện</Link>
+                  <Link href="/products?category=nu&subcategory=giay" className={styles.megaMenuLink}>{t.subcategories['giay']}</Link>
+                  <Link href="/products?category=nu&subcategory=tui-xach" className={styles.megaMenuLink}>{t.subcategories['tui-xach']}</Link>
+                  <Link href="/products?category=nu&subcategory=phu-kien" className={styles.megaMenuLink}>{t.subcategories['phu-kien']}</Link>
                 </div>
               </div>
             </div>
@@ -242,22 +246,22 @@ export default function Header() {
             <div className={styles.megaMenuContainer}>
               <div className={styles.megaMenuGrid}>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nam&subcategory=t-shirt" className={styles.megaMenuLink}>T-shirt</Link>
-                  <Link href="/products?category=nam&subcategory=so-mi" className={styles.megaMenuLink}>Sơ mi</Link>
-                  <Link href="/products?category=nam&subcategory=polo" className={styles.megaMenuLink}>Polo</Link>
-                  <Link href="/products?category=nam&subcategory=ao-khoac" className={styles.megaMenuLink}>Áo khoác</Link>
+                  <Link href="/products?category=nam&subcategory=t-shirt" className={styles.megaMenuLink}>{t.subcategories['t-shirt']}</Link>
+                  <Link href="/products?category=nam&subcategory=so-mi" className={styles.megaMenuLink}>{t.subcategories['so-mi']}</Link>
+                  <Link href="/products?category=nam&subcategory=polo" className={styles.megaMenuLink}>{t.subcategories['polo']}</Link>
+                  <Link href="/products?category=nam&subcategory=ao-khoac" className={styles.megaMenuLink}>{t.subcategories['ao-khoac']}</Link>
                 </div>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nam&subcategory=quan-jeans" className={styles.megaMenuLink}>Quần jeans</Link>
-                  <Link href="/products?category=nam&subcategory=quan-tay" className={styles.megaMenuLink}>Quần tây</Link>
-                  <Link href="/products?category=nam&subcategory=quan-short" className={styles.megaMenuLink}>Quần short</Link>
-                  <Link href="/products?category=nam&subcategory=jogger" className={styles.megaMenuLink}>Jogger</Link>
-                  <Link href="/products?category=nam&subcategory=cargo" className={styles.megaMenuLink}>Cargo</Link>
+                  <Link href="/products?category=nam&subcategory=quan-jeans" className={styles.megaMenuLink}>{t.subcategories['quan-jeans']}</Link>
+                  <Link href="/products?category=nam&subcategory=quan-tay" className={styles.megaMenuLink}>{t.subcategories['quan-tay']}</Link>
+                  <Link href="/products?category=nam&subcategory=quan-short" className={styles.megaMenuLink}>{t.subcategories['quan-short']}</Link>
+                  <Link href="/products?category=nam&subcategory=jogger" className={styles.megaMenuLink}>{t.subcategories['jogger']}</Link>
+                  <Link href="/products?category=nam&subcategory=cargo" className={styles.megaMenuLink}>{t.subcategories['cargo']}</Link>
                 </div>
                 <div className={styles.megaMenuCol}>
-                  <Link href="/products?category=nam&subcategory=sneaker" className={styles.megaMenuLink}>Sneaker</Link>
-                  <Link href="/products?category=nam&subcategory=giay" className={styles.megaMenuLink}>Giày</Link>
-                  <Link href="/products?category=nam&subcategory=phu-kien" className={styles.megaMenuLink}>Phụ kiện</Link>
+                  <Link href="/products?category=nam&subcategory=sneaker" className={styles.megaMenuLink}>{t.subcategories['sneaker']}</Link>
+                  <Link href="/products?category=nam&subcategory=giay" className={styles.megaMenuLink}>{t.subcategories['giay']}</Link>
+                  <Link href="/products?category=nam&subcategory=phu-kien" className={styles.megaMenuLink}>{t.subcategories['phu-kien']}</Link>
                 </div>
               </div>
             </div>
@@ -295,17 +299,17 @@ export default function Header() {
             <input
               type="text"
               className={styles.searchInputMobile}
-              placeholder="Tìm kiếm sản phẩm..."
+              placeholder={t.nav.searchPlaceholderMobile}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button type="submit" className={styles.iconBtn} aria-label="Tìm kiếm">
+            <button type="submit" className={styles.iconBtn} aria-label={t.nav.search}>
               <Search size={20} strokeWidth={1.5} />
             </button>
           </form>
 
           <Link href="/products?sort=newest" className={styles.drawerItem}>
-            Sản phẩm mới
+            {t.nav.newProducts}
           </Link>
 
           {/* Nữ Accordion */}
@@ -314,22 +318,22 @@ export default function Header() {
               onClick={() => toggleMobileCategory('nu')}
               className={styles.drawerAccordionBtn}
             >
-              Nữ
+              {t.nav.women}
               {expandedMobileCategory === 'nu' ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
             </button>
             
             {/* RENDER CONDITIONALLY ONLY WHEN EXPANDED */}
             {expandedMobileCategory === 'nu' && (
               <div className={styles.drawerSubMenu}>
-                <Link href="/products?category=nu&subcategory=ao" className={styles.drawerSubLink}>Áo</Link>
-                <Link href="/products?category=nu&subcategory=quan" className={styles.drawerSubLink}>Quần</Link>
-                <Link href="/products?category=nu&subcategory=dam-vay" className={styles.drawerSubLink}>Váy / Đầm</Link>
-                <Link href="/products?category=nu&subcategory=jumpsuit" className={styles.drawerSubLink}>Jumpsuit</Link>
-                <Link href="/products?category=nu&subcategory=do-the-thao" className={styles.drawerSubLink}>Đồ thể thao</Link>
-                <Link href="/products?category=nu&subcategory=do-ngu" className={styles.drawerSubLink}>Đồ ngủ</Link>
-                <Link href="/products?category=nu&subcategory=giay" className={styles.drawerSubLink}>Giày</Link>
-                <Link href="/products?category=nu&subcategory=tui-xach" className={styles.drawerSubLink}>Túi xách</Link>
-                <Link href="/products?category=nu&subcategory=phu-kien" className={styles.drawerSubLink}>Phụ kiện</Link>
+                <Link href="/products?category=nu&subcategory=ao" className={styles.drawerSubLink}>{t.subcategories['ao']}</Link>
+                <Link href="/products?category=nu&subcategory=quan" className={styles.drawerSubLink}>{t.subcategories['quan']}</Link>
+                <Link href="/products?category=nu&subcategory=dam-vay" className={styles.drawerSubLink}>{t.subcategories['dam-vay']}</Link>
+                <Link href="/products?category=nu&subcategory=jumpsuit" className={styles.drawerSubLink}>{t.subcategories['jumpsuit']}</Link>
+                <Link href="/products?category=nu&subcategory=do-the-thao" className={styles.drawerSubLink}>{t.subcategories['do-the-thao']}</Link>
+                <Link href="/products?category=nu&subcategory=do-ngu" className={styles.drawerSubLink}>{t.subcategories['do-ngu']}</Link>
+                <Link href="/products?category=nu&subcategory=giay" className={styles.drawerSubLink}>{t.subcategories['giay']}</Link>
+                <Link href="/products?category=nu&subcategory=tui-xach" className={styles.drawerSubLink}>{t.subcategories['tui-xach']}</Link>
+                <Link href="/products?category=nu&subcategory=phu-kien" className={styles.drawerSubLink}>{t.subcategories['phu-kien']}</Link>
               </div>
             )}
           </div>
@@ -340,42 +344,46 @@ export default function Header() {
               onClick={() => toggleMobileCategory('nam')}
               className={styles.drawerAccordionBtn}
             >
-              Nam
+              {t.nav.men}
               {expandedMobileCategory === 'nam' ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
             </button>
             
             {/* RENDER CONDITIONALLY ONLY WHEN EXPANDED */}
             {expandedMobileCategory === 'nam' && (
               <div className={styles.drawerSubMenu}>
-                <Link href="/products?category=nam&subcategory=t-shirt" className={styles.drawerSubLink}>T-shirt</Link>
-                <Link href="/products?category=nam&subcategory=so-mi" className={styles.drawerSubLink}>Sơ mi</Link>
-                <Link href="/products?category=nam&subcategory=polo" className={styles.drawerSubLink}>Polo</Link>
-                <Link href="/products?category=nam&subcategory=ao-khoac" className={styles.drawerSubLink}>Áo khoác</Link>
-                <Link href="/products?category=nam&subcategory=quan-jeans" className={styles.drawerSubLink}>Quần jeans</Link>
-                <Link href="/products?category=nam&subcategory=quan-tay" className={styles.drawerSubLink}>Quần tây</Link>
-                <Link href="/products?category=nam&subcategory=quan-short" className={styles.drawerSubLink}>Quần short</Link>
-                <Link href="/products?category=nam&subcategory=jogger" className={styles.drawerSubLink}>Jogger</Link>
-                <Link href="/products?category=nam&subcategory=cargo" className={styles.drawerSubLink}>Cargo</Link>
-                <Link href="/products?category=nam&subcategory=sneaker" className={styles.drawerSubLink}>Sneaker</Link>
-                <Link href="/products?category=nam&subcategory=giay" className={styles.drawerSubLink}>Giày</Link>
-                <Link href="/products?category=nam&subcategory=phu-kien" className={styles.drawerSubLink}>Phụ kiện</Link>
+                <Link href="/products?category=nam&subcategory=t-shirt" className={styles.drawerSubLink}>{t.subcategories['t-shirt']}</Link>
+                <Link href="/products?category=nam&subcategory=so-mi" className={styles.drawerSubLink}>{t.subcategories['so-mi']}</Link>
+                <Link href="/products?category=nam&subcategory=polo" className={styles.drawerSubLink}>{t.subcategories['polo']}</Link>
+                <Link href="/products?category=nam&subcategory=ao-khoac" className={styles.drawerSubLink}>{t.subcategories['ao-khoac']}</Link>
+                <Link href="/products?category=nam&subcategory=quan-jeans" className={styles.drawerSubLink}>{t.subcategories['quan-jeans']}</Link>
+                <Link href="/products?category=nam&subcategory=quan-tay" className={styles.drawerSubLink}>{t.subcategories['quan-tay']}</Link>
+                <Link href="/products?category=nam&subcategory=quan-short" className={styles.drawerSubLink}>{t.subcategories['quan-short']}</Link>
+                <Link href="/products?category=nam&subcategory=jogger" className={styles.drawerSubLink}>{t.subcategories['jogger']}</Link>
+                <Link href="/products?category=nam&subcategory=cargo" className={styles.drawerSubLink}>{t.subcategories['cargo']}</Link>
+                <Link href="/products?category=nam&subcategory=sneaker" className={styles.drawerSubLink}>{t.subcategories['sneaker']}</Link>
+                <Link href="/products?category=nam&subcategory=giay" className={styles.drawerSubLink}>{t.subcategories['giay']}</Link>
+                <Link href="/products?category=nam&subcategory=phu-kien" className={styles.drawerSubLink}>{t.subcategories['phu-kien']}</Link>
               </div>
             )}
           </div>
 
           <Link href="/products?category=phu-kien" className={styles.drawerItem}>
-            Phụ kiện
+            {t.nav.accessories}
           </Link>
           
           <Link href="/products?badge=SALE" className={`${styles.drawerItem} ${styles.navItemSale}`}>
-            Sale
+            {t.nav.sale}
           </Link>
 
           <div className={styles.divider} />
+
+          <div style={{ padding: '8px 0' }}>
+            <LanguageSwitcher />
+          </div>
           
           <Link href={user?.role === 'ADMIN' ? '/admin' : '/account'} className={styles.drawerItem} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <User size={22} strokeWidth={1.5} />
-            {user ? (user.role === 'ADMIN' ? 'Admin Dashboard' : 'Tài khoản của tôi') : 'Đăng nhập / Đăng ký'}
+            {user ? (user.role === 'ADMIN' ? t.nav.adminDashboard : t.nav.myAccount) : t.nav.loginRegister}
           </Link>
         </div>
       </div>

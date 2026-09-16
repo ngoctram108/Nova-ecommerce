@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Product } from '@/Shared/types';
 import { ProductCard } from '@/Frontend/components/ui';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
 
 export interface ProductCarouselProps {
   title: string;
@@ -20,6 +21,7 @@ export default function ProductCarousel({
   backgroundColor = 'transparent',
 }: ProductCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { t } = useLocale();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -65,13 +67,13 @@ export default function ProductCarousel({
                 }}
                 className="hover:underline hidden sm:block"
               >
-                Xem tất cả
+                {t.home.viewAll}
               </Link>
             )}
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => scroll('left')}
-                aria-label="Cuộn trái"
+                aria-label={t.home.scrollLeft}
                 style={{
                   width: 40,
                   height: 40,
@@ -91,7 +93,7 @@ export default function ProductCarousel({
               </button>
               <button
                 onClick={() => scroll('right')}
-                aria-label="Cuộn phải"
+                aria-label={t.home.scrollRight}
                 style={{
                   width: 40,
                   height: 40,
@@ -166,7 +168,7 @@ export default function ProductCarousel({
               }}
               className="hover:underline"
             >
-              Xem tất cả
+              {t.home.viewAll}
             </Link>
           </div>
         )}

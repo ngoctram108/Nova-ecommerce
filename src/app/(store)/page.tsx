@@ -1,9 +1,6 @@
 import React from 'react';
-import HeroSection from '@/Frontend/components/sections/HeroSection';
-import CategorySection from '@/Frontend/components/sections/CategorySection';
-import ProductCarousel from '@/Frontend/components/sections/ProductCarousel';
-import ValueProposition from '@/Frontend/components/sections/ValueProposition';
 import { queryProducts } from '@/Backend/services/catalog';
+import HomeContent from './HomeContent';
 
 export default async function HomePage() {
   // Fetch mock data for the carousels
@@ -14,31 +11,10 @@ export default async function HomePage() {
   ])).map(res => res.data);
 
   return (
-    <div>
-      <HeroSection />
-      
-      <CategorySection />
-      
-      <ProductCarousel
-        title="Sản phẩm nổi bật"
-        products={featured}
-        viewAllLink="/products?sort=recommended"
-      />
-      
-      <ProductCarousel
-        title="Hàng mới về"
-        products={newArrivals}
-        viewAllLink="/products?sort=newest"
-        backgroundColor="var(--color-surface-pearl)"
-      />
-      
-      <ProductCarousel
-        title="Ưu đãi đặc biệt"
-        products={onSale}
-        viewAllLink="/products?badge=SALE"
-      />
-      
-      <ValueProposition />
-    </div>
+    <HomeContent
+      featured={featured}
+      newArrivals={newArrivals}
+      onSale={onSale}
+    />
   );
 }
