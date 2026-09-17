@@ -9,7 +9,11 @@
 import { Product, ProductReview } from '@/Shared/types';
 import { autoCategorizeProduct } from '@/Backend/services/categorization';
 
-const rawProducts: any[] = [
+// Raw product data might not have the localized fields yet
+type RawProduct = Omit<Product, 'nameVi' | 'nameEn' | 'descriptionVi' | 'descriptionEn'> & 
+  Partial<Pick<Product, 'nameVi' | 'nameEn' | 'descriptionVi' | 'descriptionEn'>>;
+
+const rawProducts: RawProduct[] = [
   // ────── CLOTHING (15) ──────
   {
     id: 'p_001',
@@ -1075,17 +1079,20 @@ const rawProducts: any[] = [
   },
 ];
 
-
-export const products: Product[] = rawProducts.map(p => {
-  const categorized = autoCategorizeProduct(p);
+// Helper to normalize and add translation fallbacks to legacy data
+function normalizeProduct(raw: RawProduct): Product {
+  const categorized = autoCategorizeProduct(raw as Product); // Cast for autoCategorize, which doesn't touch localized fields
+  
   return {
     ...categorized,
-    nameVi: p.nameVi || p.name,
-    nameEn: p.nameEn || '',
-    descriptionVi: p.descriptionVi || p.description,
-    descriptionEn: p.descriptionEn || '',
+    nameVi: raw.nameVi ?? raw.name,
+    nameEn: raw.nameEn ?? raw.name,
+    descriptionVi: raw.descriptionVi ?? raw.description,
+    descriptionEn: raw.descriptionEn ?? raw.description,
   } as Product;
-});
+}
+
+export const products: Product[] = rawProducts.map(normalizeProduct);
 
 /* ── Helper functions ── */
 
