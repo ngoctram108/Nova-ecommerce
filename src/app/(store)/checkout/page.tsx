@@ -9,11 +9,14 @@ import { Button, Input, Select, EmptyState } from '@/Frontend/components/ui';
 import { calculatePricingSummary } from '@/Backend/services/pricing';
 import { useAuth } from '@/Frontend/contexts/AuthContext';
 import { shippingAddressSchema, mockCardSchema } from '@/Shared/validation/checkout';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
+import { getLocalizedName } from '@/Shared/utils/localize';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, itemCount, clearCart } = useCart();
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { locale } = useLocale();
   const { error, success } = useToast();
 
   const [deliveryMethod, setDeliveryMethod] = useState<'STANDARD' | 'EXPRESS'>('STANDARD');
@@ -345,7 +348,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div style={{ fontSize: 'var(--text-caption-strong-size)', fontWeight: 600, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.name}</div>
+                    <div style={{ fontSize: 'var(--text-caption-strong-size)', fontWeight: 600, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{getLocalizedName(item, locale)}</div>
                     {item.variant && <div style={{ fontSize: 'var(--text-fine-print-size)', color: 'var(--color-ink-muted-80)' }}>{item.variant}</div>}
                     <div style={{ fontSize: 'var(--text-caption-size)' }}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}</div>
                   </div>

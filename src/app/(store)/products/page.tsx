@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
 import { queryProducts } from '@/Backend/services/catalog';
+import { cookies } from 'next/headers';
 import { ProductFilters } from '@/Shared/types';
 import { ProductCard, Pagination } from '@/Frontend/components/ui';
 import ProductFilterSidebar from '@/Frontend/components/sections/ProductFilterSidebar';
@@ -23,10 +24,14 @@ export default async function ProductsPage({
 }) {
   // Await search params in Next.js 15
   const resolvedParams = await searchParams;
+  
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'vi') as 'vi' | 'en';
 
   // Build filters
   const filters: ProductFilters = {
     limit: 12,
+    locale,
   };
 
   if (typeof resolvedParams.q === 'string') filters.q = resolvedParams.q;

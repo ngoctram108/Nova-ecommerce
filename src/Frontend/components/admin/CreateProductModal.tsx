@@ -34,14 +34,16 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
   const [activeTab, setActiveTab] = useState<'info' | 'images' | 'variants'>('info');
 
   // Basic Info
-  const [name, setName] = useState('');
+  const [nameVi, setNameVi] = useState('');
+  const [nameEn, setNameEn] = useState('');
   const [slug, setSlug] = useState('');
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
   const [compareAt, setCompareAt] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
   const [subcategorySlug, setSubcategorySlug] = useState('');
-  const [description, setDescription] = useState('');
+  const [descriptionVi, setDescriptionVi] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
 
   // Images
   const [images, setImages] = useState<ProductImage[]>([]);
@@ -56,10 +58,10 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
   // Validation Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleNameChange = (val: string) => {
-    setName(val);
-    if (!val) setErrors(e => ({ ...e, name: 'Tên sản phẩm không được để trống' }));
-    else setErrors(e => ({ ...e, name: '' }));
+  const handleNameViChange = (val: string) => {
+    setNameVi(val);
+    if (!val) setErrors(e => ({ ...e, nameVi: 'Tên sản phẩm tiếng Việt không được để trống' }));
+    else setErrors(e => ({ ...e, nameVi: '' }));
     
     setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
   };
@@ -71,7 +73,7 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
       const res = await fetch('/api/images/search', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl, imageAlt: name })
+        body: JSON.stringify({ imageUrl, imageAlt: nameVi })
       });
       const data = await res.json();
       if (data.success) {
@@ -89,10 +91,10 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
   };
 
   const handleSearchImage = async () => {
-    if (!name && !brand) return showError('Vui lòng nhập tên sản phẩm hoặc thương hiệu để tìm kiếm');
+    if (!nameVi && !brand) return showError('Vui lòng nhập tên sản phẩm hoặc thương hiệu để tìm kiếm');
     setSearchingImage(true);
     try {
-      const query = `${brand} ${name}`.trim();
+      const query = `${brand} ${nameVi}`.trim();
       const res = await fetch('/api/images/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -161,7 +163,7 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!name) newErrors.name = 'Tên sản phẩm bắt buộc';
+    if (!nameVi) newErrors.nameVi = 'Tên sản phẩm tiếng Việt bắt buộc';
     if (!slug) newErrors.slug = 'Slug bắt buộc';
     if (!brand) newErrors.brand = 'Thương hiệu bắt buộc';
     if (!price || parseFloat(price) <= 0) newErrors.price = 'Giá phải lớn hơn 0';
@@ -242,10 +244,12 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
       const mainImage = updatedImages.length > 0 ? updatedImages[mainImageIndex] : null;
 
       const payload = {
-        name,
+        nameVi,
+        nameEn,
         slug,
         brand,
-        description,
+        descriptionVi,
+        descriptionEn,
         price: parseFloat(price),
         compareAt: compareAt ? parseFloat(compareAt) : null,
         categorySlug,
@@ -345,10 +349,13 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
         <div style={{ padding: 'var(--space-xl)', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: activeTab === 'info' ? 'block' : 'none' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              {renderInput('Tên sản phẩm *', name, handleNameChange, 'name', { placeholder: 'VD: Áo Thun' })}
-              {renderInput('Thương hiệu *', brand, setBrand, 'brand')}
+              {renderInput('Tên sản phẩm (Tiếng Việt) *', nameVi, handleNameViChange, 'nameVi', { placeholder: 'VD: Áo Thun' })}
+              {renderInput('Tên sản phẩm (English)', nameEn, setNameEn, 'nameEn', { placeholder: 'VD: T-Shirt' })}
             </div>
-            {renderInput('Slug * (Tạo tự động)', slug, setSlug, 'slug')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {renderInput('Thương hiệu *', brand, setBrand, 'brand')}
+              {renderInput('Slug * (Tạo tự động)', slug, setSlug, 'slug')}
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {renderInput('Giá bán (VND) *', price, setPrice, 'price', { type: 'number' })}
@@ -370,9 +377,15 @@ export default function CreateProductModal({ onClose, onSuccess, categories }: C
               {renderInput('Loại sản phẩm (Subcategory)', subcategorySlug, setSubcategorySlug, 'subcategorySlug')}
             </div>
 
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Mô tả</label>
-              <textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} style={{ ...inputStyle, resize: 'vertical' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Mô tả (Tiếng Việt)</label>
+                <textarea rows={4} value={descriptionVi} onChange={e => setDescriptionVi(e.target.value)} style={{ ...inputStyle, resize: 'vertical' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Mô tả (English)</label>
+                <textarea rows={4} value={descriptionEn} onChange={e => setDescriptionEn(e.target.value)} style={{ ...inputStyle, resize: 'vertical' }} />
+              </div>
             </div>
           </div>
 

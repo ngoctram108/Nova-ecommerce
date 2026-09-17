@@ -9,7 +9,7 @@
 import { Product, ProductReview } from '@/Shared/types';
 import { autoCategorizeProduct } from '@/Backend/services/categorization';
 
-const rawProducts: Product[] = [
+const rawProducts: any[] = [
   // ────── CLOTHING (15) ──────
   {
     id: 'p_001',
@@ -1076,7 +1076,16 @@ const rawProducts: Product[] = [
 ];
 
 
-export const products: Product[] = rawProducts.map(p => autoCategorizeProduct(p) as Product);
+export const products: Product[] = rawProducts.map(p => {
+  const categorized = autoCategorizeProduct(p);
+  return {
+    ...categorized,
+    nameVi: p.nameVi || p.name,
+    nameEn: p.nameEn || '',
+    descriptionVi: p.descriptionVi || p.description,
+    descriptionEn: p.descriptionEn || '',
+  } as Product;
+});
 
 /* ── Helper functions ── */
 

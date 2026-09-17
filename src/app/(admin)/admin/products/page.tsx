@@ -12,6 +12,8 @@ interface ProductRow {
   id: string;
   slug: string;
   name: string;
+  nameVi?: string;
+  nameEn?: string;
   brand: string;
   category: string;
   price: number;
@@ -104,7 +106,10 @@ export default function AdminProducts() {
     setFetchingDetails(true);
     setEditingProduct(product);
     setEditForm({
-      name: product.name,
+      nameVi: product.nameVi || product.name,
+      nameEn: product.nameEn || '',
+      descriptionVi: '', // fetched on details
+      descriptionEn: '',
       brand: product.brand,
       price: product.price,
       compareAt: product.compareAt || '',
@@ -137,6 +142,8 @@ export default function AdminProducts() {
 
         setEditForm(prev => ({
           ...prev,
+          descriptionVi: data.data.descriptionVi || data.data.description || '',
+          descriptionEn: data.data.descriptionEn || '',
           images: parsedImages,
           mainImageIndex: mainIdx,
           imageUrl: data.data.imageUrl,
@@ -159,7 +166,7 @@ export default function AdminProducts() {
       const res = await fetch('/api/images/search', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: imgInputUrl, imageAlt: editForm.name })
+        body: JSON.stringify({ imageUrl: imgInputUrl, imageAlt: editForm.nameVi })
       });
       const data = await res.json();
       if (data.success) {
@@ -180,10 +187,10 @@ export default function AdminProducts() {
   };
 
   const handleSearchEditImage = async () => {
-    if (!editForm.name && !editForm.brand) return showError('Vui lòng nhập tên sản phẩm hoặc thương hiệu để tìm kiếm');
+    if (!editForm.nameVi && !editForm.brand) return showError('Vui lòng nhập tên sản phẩm hoặc thương hiệu để tìm kiếm');
     setSearchingImage(true);
     try {
-      const query = `${editForm.brand || ''} ${editForm.name || ''}`.trim();
+      const query = `${editForm.brand || ''} ${editForm.nameVi || ''}`.trim();
       const res = await fetch('/api/images/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -278,7 +285,10 @@ export default function AdminProducts() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: editForm.name,
+          nameVi: editForm.nameVi,
+          nameEn: editForm.nameEn,
+          descriptionVi: editForm.descriptionVi,
+          descriptionEn: editForm.descriptionEn,
           brand: editForm.brand,
           price: parseFloat(editForm.price),
           compareAt: editForm.compareAt ? parseFloat(editForm.compareAt) : null,
@@ -418,9 +428,18 @@ export default function AdminProducts() {
                           onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/96'; }}
                         />
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{product.name}</div>
-                        <div style={{ fontSize: 12, color: 'var(--color-ink-muted-80)' }}>{product.brand}</div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                          {product.nameVi || product.name}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--color-ink-muted-80)', display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <span>{product.brand}</span>
+                          {!product.nameEn && (
+                            <span style={{ fontSize: 10, padding: '2px 6px', backgroundColor: 'rgba(230,57,70,0.1)', color: 'var(--color-danger)', borderRadius: 4, fontWeight: 500 }}>
+                              Missing EN
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {product.badge && (
                         <span style={{ padding: '2px 8px', borderRadius: 100, backgroundColor: product.badge === 'SALE' ? 'rgba(230,57,70,0.1)' : 'rgba(0,102,204,0.1)', color: product.badge === 'SALE' ? 'var(--color-danger)' : 'var(--color-primary)', fontSize: 11, fontWeight: 600, flexShrink: 0 }}>
@@ -523,21 +542,54 @@ export default function AdminProducts() {
                 </div>
               )}
 
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Tên sản phẩm</label>
-                <input
-                  value={editForm.name || ''}
-                  onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }}
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Tên (Tiếng Việt)</label>
+                  <input
+                    value={editForm.nameVi || ''}
+                    onChange={e => setEditForm(f => ({ ...f, nameVi: e.target.value }))}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Tên (English)</label>
+                  <input
+                    value={editForm.nameEn || ''}
+                    onChange={e => setEditForm(f => ({ ...f, nameEn: e.target.value }))}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }}
+                  />
+                </div>
               </div>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Thương hiệu</label>
-                <input
-                  value={editForm.brand || ''}
-                  onChange={e => setEditForm(f => ({ ...f, brand: e.target.value }))}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }}
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Thương hiệu</label>
+                  <input
+                    value={editForm.brand || ''}
+                    onChange={e => setEditForm(f => ({ ...f, brand: e.target.value }))}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14 }}
+                  />
+                </div>
+                <div />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Mô tả (Tiếng Việt)</label>
+                  <textarea
+                    value={editForm.descriptionVi || ''}
+                    onChange={e => setEditForm(f => ({ ...f, descriptionVi: e.target.value }))}
+                    rows={4}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14, resize: 'vertical' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: 'block', color: 'var(--color-ink-muted-80)' }}>Mô tả (English)</label>
+                  <textarea
+                    value={editForm.descriptionEn || ''}
+                    onChange={e => setEditForm(f => ({ ...f, descriptionEn: e.target.value }))}
+                    rows={4}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--rounded-sm)', border: '1px solid var(--color-hairline)', outline: 'none', fontSize: 14, resize: 'vertical' }}
+                  />
+                </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>

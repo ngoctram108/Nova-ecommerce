@@ -7,6 +7,7 @@ import { useCart } from '@/Frontend/contexts/CartContext';
 import { useLocale } from '@/Frontend/contexts/LocaleContext';
 import { Button, EmptyState } from '@/Frontend/components/ui';
 import { ShoppingBag, Trash2 } from 'lucide-react';
+import { getLocalizedName } from '@/Shared/utils/localize';
 
 export default function CartPage() {
   const { items, itemCount, subtotal, updateQuantity, removeItem } = useCart();
@@ -104,7 +105,7 @@ export default function CartPage() {
                     }}
                     className="hover:underline"
                   >
-                    {item.name}
+                    {getLocalizedName(item, locale)}
                   </Link>
                   {item.variant && (
                     <div style={{ fontSize: 'var(--text-caption-size)', color: 'var(--color-ink-muted-80)', marginBottom: 8 }}>

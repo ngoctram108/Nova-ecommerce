@@ -56,7 +56,7 @@ export default async function ProductDetailPage({
               {product.brand}
             </div>
             <h1 className={styles.productName}>
-              {product.name}
+              <LocalizedProductName product={product} />
             </h1>
             
             <div className={styles.ratingContainer}>
@@ -73,7 +73,7 @@ export default async function ProductDetailPage({
 
           {/* Description */}
           <div className={styles.description}>
-            {product.description}
+            <LocalizedProductDescription product={product} />
           </div>
 
           {/* Specs */}
@@ -129,4 +129,4 @@ function ReviewsSkeleton() {
   );
 }
 
-import { ProductDetailReviews, ProductAdditionalInfo } from './ProductDetailI18n';
+import { ProductDetailReviews, ProductAdditionalInfo, LocalizedProductName, LocalizedProductDescription } from './ProductDetailI18n';

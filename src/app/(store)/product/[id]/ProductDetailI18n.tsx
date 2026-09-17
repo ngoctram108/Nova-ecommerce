@@ -2,7 +2,18 @@
 
 import React from 'react';
 import { useLocale } from '@/Frontend/contexts/LocaleContext';
+import { getLocalizedName, getLocalizedDescription, LocalizableProduct } from '@/Shared/utils/localize';
 import styles from './ProductDetail.module.css';
+
+export function LocalizedProductName({ product }: { product: LocalizableProduct }) {
+  const { locale } = useLocale();
+  return <>{getLocalizedName(product, locale)}</>;
+}
+
+export function LocalizedProductDescription({ product }: { product: LocalizableProduct }) {
+  const { locale } = useLocale();
+  return <>{getLocalizedDescription(product, locale)}</>;
+}
 
 export function ProductDetailReviews({ rating, count }: { rating: number; count: number }) {
   const { t } = useLocale();

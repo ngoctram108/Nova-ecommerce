@@ -64,6 +64,8 @@ export default function AddToCartForm({ product }: { product: Product }) {
       productId: product.id,
       variantId: currentVariantId,
       name: product.name,
+      nameVi: product.nameVi,
+      nameEn: product.nameEn,
       thumbnail: product.thumbnail,
       imageUrl,
       imageAlt,
