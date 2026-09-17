@@ -8,6 +8,8 @@ import { Product } from '@/Shared/types';
 import Badge from './Badge';
 import Button from './Button';
 import { useProductImage } from '@/Frontend/hooks/useProductImage';
+import { useLocale } from '@/Frontend/contexts/LocaleContext';
+import { getLocalizedName } from '@/Shared/utils/localize';
 
 /* ── Generic Card ── */
 
@@ -60,6 +62,8 @@ export interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart, priority = false }: ProductCardProps) {
   const { imageUrl, imageAlt } = useProductImage(product);
+  const { locale } = useLocale();
+  const localizedName = getLocalizedName(product, locale);
 
   return (
     <div
@@ -134,7 +138,7 @@ export function ProductCard({ product, onAddToCart, priority = false }: ProductC
               overflow: 'hidden',
             }}
           >
-            {product.name}
+            {localizedName}
           </h3>
         </Link>
         <div

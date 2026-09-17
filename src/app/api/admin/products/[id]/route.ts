@@ -68,7 +68,8 @@ export async function PUT(
     }
 
     const allowedFields = [
-      'name', 'slug', 'brand', 'description', 'price', 'compareAt',
+      'name', 'nameVi', 'nameEn', 'slug', 'brand', 'description', 'descriptionVi', 'descriptionEn',
+      'price', 'compareAt',
       'categorySlug', 'subcategorySlug', 'thumbnail', 'imageUrl', 'imageAlt',
       'badge', 'featured', 'rating', 'reviewCount', 'imageSourceUrl'
     ];
@@ -87,6 +88,12 @@ export async function PUT(
     }
     if (body.specs !== undefined) {
       updateData.specs = typeof body.specs === 'string' ? body.specs : JSON.stringify(body.specs);
+    }
+
+    // Sync name/description with Vi versions for backward compat
+    if (updateData.nameVi !== undefined) {
+      updateData.name = updateData.nameVi;
+      updateData.description = updateData.descriptionVi ?? existing.description;
     }
 
     const product = await prisma.product.update({

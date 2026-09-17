@@ -52,6 +52,10 @@ model Product {
   name        String
   brand       String
   description String
+  nameVi        String @default("")
+  nameEn        String @default("")
+  descriptionVi String @default("")
+  descriptionEn String @default("")
   price       Float
   compareAt   Float?
   currency    String @default("VND")

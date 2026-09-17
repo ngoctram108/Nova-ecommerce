@@ -43,6 +43,10 @@ export interface Product {
   subcategorySlug?: string;
   tags?: string[];
   description: string;
+  nameVi: string;
+  nameEn: string;
+  descriptionVi: string;
+  descriptionEn: string;
   price: number;
   compareAt?: number;
   currency: 'VND';
@@ -83,6 +87,8 @@ export interface CartItem {
   quantity: number;
   price: number;
   name: string;
+  nameVi?: string;
+  nameEn?: string;
   thumbnail: string;
   imageUrl?: string;
   imageAlt?: string;
@@ -198,6 +204,7 @@ export type SortOption =
 
 export interface ProductFilters {
   q?: string;
+  locale?: 'vi' | 'en';
   category?: string;
   subcategory?: string;
   brand?: string;

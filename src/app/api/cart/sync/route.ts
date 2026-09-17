@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
         productId: product.id,
         variantId: variant?.id,
         name: product.name,
+        nameVi: (product as any).nameVi || product.name,
+        nameEn: (product as any).nameEn || '',
         price,
         quantity,
         thumbnail: product.thumbnail,

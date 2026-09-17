@@ -54,11 +54,21 @@ export async function queryProducts(filters: ProductFilters = {}) {
     const where: Prisma.ProductWhereInput = {};
 
     if (filters.q) {
-      where.OR = [
-        { name: { contains: filters.q, mode: 'insensitive' } },
-        { description: { contains: filters.q, mode: 'insensitive' } },
-        { brand: { contains: filters.q, mode: 'insensitive' } },
-      ];
+      const q = filters.q;
+      if (filters.locale === 'en') {
+        where.OR = [
+          { nameEn: { contains: q, mode: 'insensitive' } },
+          { descriptionEn: { contains: q, mode: 'insensitive' } },
+          { nameVi: { contains: q, mode: 'insensitive' } },
+          { brand: { contains: q, mode: 'insensitive' } },
+        ];
+      } else {
+        where.OR = [
+          { nameVi: { contains: q, mode: 'insensitive' } },
+          { descriptionVi: { contains: q, mode: 'insensitive' } },
+          { brand: { contains: q, mode: 'insensitive' } },
+        ];
+      }
     }
 
     if (filters.category) {
@@ -152,6 +162,8 @@ export async function queryProducts(filters: ProductFilters = {}) {
           id: true,
           slug: true,
           name: true,
+          nameVi: true,
+          nameEn: true,
           brand: true,
           price: true,
           compareAt: true,
@@ -177,6 +189,8 @@ export async function queryProducts(filters: ProductFilters = {}) {
       id: p.id,
       slug: p.slug,
       name: p.name,
+      nameVi: p.nameVi,
+      nameEn: p.nameEn,
       brand: p.brand,
       price: p.price,
       compareAt: p.compareAt || undefined,
@@ -189,12 +203,14 @@ export async function queryProducts(filters: ProductFilters = {}) {
       imageSourceUrl: p.imageSourceUrl || undefined,
       badge: (p.badge as any) || undefined,
       featured: p.featured,
-      category: p.categorySlug === 'nam' ? 'Nam' : p.categorySlug === 'nu' ? 'Nữ' : p.categorySlug,
+      category: p.categorySlug,
       categorySlug: p.categorySlug,
       subcategory: p.subcategorySlug || undefined,
       subcategorySlug: p.subcategorySlug || undefined,
       // Defaults for fields not fetched in listing (needed by Product type)
       description: '',
+      descriptionVi: '',
+      descriptionEn: '',
       images: [p.thumbnail],
       tags: [] as string[],
       specs: {} as Record<string, string>,
@@ -231,7 +247,7 @@ export const getProductMeta = cache(async (id: string) => {
   try {
     const p = await prisma.product.findUnique({
       where: { id },
-      select: { name: true, description: true }
+      select: { name: true, nameVi: true, nameEn: true, description: true, descriptionVi: true, descriptionEn: true }
     });
     return p;
   } catch (e) {
@@ -277,7 +293,7 @@ export const getProductDetails = cache(async (id: string) => {
       imageAlt: p.imageAlt || undefined,
       imageSourceUrl: p.imageSourceUrl || undefined,
       badge: (p.badge as any) || undefined,
-      category: p.categorySlug === 'nam' ? 'Nam' : p.categorySlug === 'nu' ? 'Nữ' : p.categorySlug,
+      category: p.categorySlug,
       categorySlug: p.categorySlug,
       subcategory: p.subcategorySlug || undefined,
       subcategorySlug: p.subcategorySlug || undefined,

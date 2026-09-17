@@ -46,6 +46,9 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort');
     if (sort) filters.sort = sort as any;
     
+    const locale = searchParams.get('locale');
+    if (locale === 'vi' || locale === 'en') filters.locale = locale;
+    
     // Query the catalog service
     const result = await queryProducts(filters);
     

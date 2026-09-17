@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
     if (q) {
       where.OR = [
         { name: { contains: q, mode: 'insensitive' } },
+        { nameVi: { contains: q, mode: 'insensitive' } },
+        { nameEn: { contains: q, mode: 'insensitive' } },
         { brand: { contains: q, mode: 'insensitive' } },
         { slug: { contains: q, mode: 'insensitive' } },
       ];
@@ -70,6 +72,8 @@ export async function GET(request: NextRequest) {
         id: p.id,
         slug: p.slug,
         name: p.name,
+        nameVi: (p as any).nameVi || '',
+        nameEn: (p as any).nameEn || '',
         brand: p.brand,
         category: p.categorySlug,
         price: p.price,
@@ -111,13 +115,20 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      name, slug, brand, description, price, compareAt, categorySlug,
+      name, nameVi, nameEn, slug, brand, description, descriptionVi, descriptionEn,
+      price, compareAt, categorySlug,
       subcategorySlug, thumbnail, images, imageUrl, imageAlt, imageSourceUrl, badge, featured, tags, specs,
       variants, colors, sizes
     } = body;
 
-    if (!name || !slug || !brand || !price || !categorySlug) {
-      return NextResponse.json({ error: 'Missing required fields: name, slug, brand, price, categorySlug' }, { status: 400 });
+    // Support both old (name) and new (nameVi) API formats
+    const finalNameVi = nameVi || name || '';
+    const finalNameEn = nameEn || '';
+    const finalDescVi = descriptionVi || description || '';
+    const finalDescEn = descriptionEn || '';
+
+    if (!finalNameVi || !slug || !brand || !price || !categorySlug) {
+      return NextResponse.json({ error: 'Missing required fields: name/nameVi, slug, brand, price, categorySlug' }, { status: 400 });
     }
 
     const normalizedCategorySlug = categorySlug.toLowerCase();
@@ -129,10 +140,14 @@ export async function POST(request: NextRequest) {
     const product = await prisma.$transaction(async (tx) => {
       const newProduct = await tx.product.create({
         data: {
-          name,
+          name: finalNameVi,
+          nameVi: finalNameVi,
+          nameEn: finalNameEn,
           slug,
           brand,
-          description: description || '',
+          description: finalDescVi,
+          descriptionVi: finalDescVi,
+          descriptionEn: finalDescEn,
           price,
           compareAt: compareAt || null,
           categorySlug: normalizedCategorySlug,

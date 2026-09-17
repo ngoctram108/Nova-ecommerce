@@ -2,6 +2,9 @@
 // NORA E-Commerce — Utility Functions
 // ─────────────────────────────────────────────
 
+export { getLocalizedName, getLocalizedDescription, hasTranslation } from './localize';
+export type { LocalizableProduct } from './localize';
+
 /**
  * Format price in VND currency
  */
